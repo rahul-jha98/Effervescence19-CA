@@ -23,6 +23,7 @@ import org.effervescence.app19.ca.utilities.MyPreferences.set
 import org.effervescence.app19.ca.utilities.UserDetails
 import org.jetbrains.anko.startActivity
 import com.google.firebase.auth.FirebaseAuth
+import org.effervescence.app19.ca.R
 
 class HomeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener, OnFragmentInteractionListener {
 
@@ -76,6 +77,7 @@ class HomeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                         AuthUI.getInstance()
                                 .createSignInIntentBuilder()
                                 .setAvailableProviders(providers)
+                                .setTheme(R.style.LoginTheme)
                                 .build(),
                         RC_SIGN_IN
                 )
