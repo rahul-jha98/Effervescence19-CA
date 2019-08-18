@@ -1,10 +1,14 @@
 package org.effervescence.app19.ca.activities
 
+import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import com.firebase.ui.auth.AuthUI
+import com.firebase.ui.auth.IdpResponse
+import com.google.firebase.auth.FirebaseAuth
 import org.effervescence.app19.ca.R
 import org.effervescence.app19.ca.fragments.LoginFragment
 import org.effervescence.app19.ca.fragments.SignupFragment
@@ -18,7 +22,6 @@ class LoginSignupActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login_signup)
-
         loadFragments(intent)
     }
 
@@ -70,5 +73,4 @@ class LoginSignupActivity : AppCompatActivity() {
             finish()
         }
     }
-
 }
