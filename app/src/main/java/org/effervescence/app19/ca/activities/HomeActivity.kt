@@ -12,9 +12,9 @@ import android.view.Menu
 import android.view.MenuItem
 import android.widget.TextView
 import com.cloudinary.android.MediaManager
+import com.firebase.ui.auth.AuthUI
 import kotlinx.android.synthetic.main.activity_home.*
 import kotlinx.android.synthetic.main.app_bar_home.*
-import org.effervescence.app19.ca.R
 import org.effervescence.app19.ca.fragments.*
 import org.effervescence.app19.ca.listeners.OnFragmentInteractionListener
 import org.effervescence.app19.ca.utilities.Constants
@@ -22,6 +22,7 @@ import org.effervescence.app19.ca.utilities.MyPreferences
 import org.effervescence.app19.ca.utilities.MyPreferences.set
 import org.effervescence.app19.ca.utilities.UserDetails
 import org.jetbrains.anko.startActivity
+import com.google.firebase.auth.FirebaseAuth
 
 class HomeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener, OnFragmentInteractionListener {
 
@@ -30,19 +31,23 @@ class HomeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private var fragmentClass: Class<*>? = null
     private var currentPage = 1
     lateinit var prefs: SharedPreferences
+    private var mFirebaseAuth = FirebaseAuth.getInstance()
+    private lateinit var mAuthStateListener: FirebaseAuth.AuthStateListener
+    val RC_SIGN_IN = 1
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_home)
+        setContentView(org.effervescence.app19.ca.R.layout.activity_home)
         setSupportActionBar(toolbar)
 
         val toggle = ActionBarDrawerToggle(
-                this, drawer_layout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close)
+                this, drawer_layout, toolbar, org.effervescence.app19.ca.R.string.navigation_drawer_open, org.effervescence.app19.ca.R.string.navigation_drawer_close)
         drawer_layout.addDrawerListener(toggle)
         toggle.syncState()
 
         nav_view.setNavigationItemSelectedListener(this)
-        nav_view.getHeaderView(0).findViewById<TextView>(R.id.userNameNav).text = UserDetails.Name
+        nav_view.getHeaderView(0).findViewById<TextView>(org.effervescence.app19.ca.R.id.userNameNav).text = UserDetails.Name
 
         fragmentClass = HomeFragment::class.java
         try {
@@ -52,11 +57,30 @@ class HomeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
 
         supportFragmentManager.beginTransaction()
-                .replace(R.id.mainContentSpace, fragment!!).commit()
+                .replace(org.effervescence.app19.ca.R.id.mainContentSpace, fragment!!).commit()
 
-        nav_view.setCheckedItem(R.id.nav_home)
+        nav_view.setCheckedItem(org.effervescence.app19.ca.R.id.nav_home)
 
         prefs = MyPreferences.customPrefs(this, Constants.MY_SHARED_PREFERENCE)
+
+        val providers = arrayListOf(
+                AuthUI.IdpConfig.EmailBuilder().build(),
+                AuthUI.IdpConfig.GoogleBuilder().build())
+
+        mAuthStateListener = FirebaseAuth.AuthStateListener {
+            val user = mFirebaseAuth.currentUser
+            if (user != null) {
+                //Already signed in
+            } else {
+                startActivityForResult(
+                        AuthUI.getInstance()
+                                .createSignInIntentBuilder()
+                                .setAvailableProviders(providers)
+                                .build(),
+                        RC_SIGN_IN
+                )
+            }
+        }
     }
 
     override fun onBackPressed() {
@@ -69,10 +93,10 @@ class HomeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 } catch (e: Exception) {
                     e.printStackTrace()
                 }
-                nav_view.setCheckedItem(R.id.nav_home)
+                nav_view.setCheckedItem(org.effervescence.app19.ca.R.id.nav_home)
                 supportFragmentManager.beginTransaction()
-                        .setCustomAnimations(R.anim.push_right_out, R.anim.push_right_in)
-                        .replace(R.id.mainContentSpace, fragment!!)
+                        .setCustomAnimations(org.effervescence.app19.ca.R.anim.push_right_out, org.effervescence.app19.ca.R.anim.push_right_in)
+                        .replace(org.effervescence.app19.ca.R.id.mainContentSpace, fragment!!)
                         .commit()
 
                 currentPage = 1
@@ -83,20 +107,20 @@ class HomeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         // Inflate the menu; this adds items to the action bar if it is present.
-        menuInflater.inflate(R.menu.home, menu)
+        menuInflater.inflate(org.effervescence.app19.ca.R.menu.home, menu)
         return true
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            R.id.logout -> {
+            org.effervescence.app19.ca.R.id.logout -> {
                 resetSharedPreference()
                 finish()
                 return true
             }
-            R.id.change_password -> changePassword()
+            org.effervescence.app19.ca.R.id.change_password -> changePassword()
 
-            R.id.edit_details -> startActivity(Intent(this, EditUserDetailsActivity::class.java))
+            org.effervescence.app19.ca.R.id.edit_details -> startActivity(Intent(this, EditUserDetailsActivity::class.java))
         }
         return super.onOptionsItemSelected(item)
     }
@@ -124,27 +148,27 @@ class HomeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         var selectedPage = currentPage
 
         when (item.itemId) {
-            R.id.nav_home -> {
+            org.effervescence.app19.ca.R.id.nav_home -> {
                 selectedPage = 1
                 fragmentClass = HomeFragment::class.java
             }
 
-            R.id.nav_events -> {
+            org.effervescence.app19.ca.R.id.nav_events -> {
                 selectedPage = 2
                 fragmentClass = EventsFragment::class.java
             }
 
-            R.id.nav_leader_board -> {
+            org.effervescence.app19.ca.R.id.nav_leader_board -> {
                 selectedPage = 3
                 fragmentClass = LeaderBoardFragment::class.java
             }
 
-            R.id.nav_about -> {
+            org.effervescence.app19.ca.R.id.nav_about -> {
                 selectedPage = 4
                 fragmentClass = AboutFragment::class.java
             }
 
-            R.id.nav_send -> {
+            org.effervescence.app19.ca.R.id.nav_send -> {
                 val referralCode = UserDetails.referralCode
                 val sendIntent: Intent = Intent().apply {
                     type = "text/plain"
@@ -155,13 +179,13 @@ class HomeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 startActivity(sendIntent)
             }
 
-            R.id.nav_info -> {
+            org.effervescence.app19.ca.R.id.nav_info -> {
                 val infoIntent = Intent(this, ContactInfoActivity::class.java)
                 infoIntent.putExtra("fragmentIndex", 0)
                 startActivity(infoIntent)
             }
 
-            R.id.nav_contacts -> {
+            org.effervescence.app19.ca.R.id.nav_contacts -> {
                 val infoIntent = Intent(this, ContactInfoActivity::class.java)
                 infoIntent.putExtra("fragmentIndex", 1)
                 startActivity(infoIntent)
@@ -170,11 +194,11 @@ class HomeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         if (currentPage != selectedPage) {
 
-            var startAnimation = R.anim.push_left_in
-            var endAnimation = R.anim.push_left_out
+            var startAnimation = org.effervescence.app19.ca.R.anim.push_left_in
+            var endAnimation = org.effervescence.app19.ca.R.anim.push_left_out
             if (currentPage > selectedPage) {
-                startAnimation = R.anim.push_right_out
-                endAnimation = R.anim.push_right_in
+                startAnimation = org.effervescence.app19.ca.R.anim.push_right_out
+                endAnimation = org.effervescence.app19.ca.R.anim.push_right_in
             }
             currentPage = selectedPage
 
@@ -188,7 +212,7 @@ class HomeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
                 supportFragmentManager.beginTransaction()
                         .setCustomAnimations(startAnimation, endAnimation)
-                        .replace(R.id.mainContentSpace, fragment!!)
+                        .replace(org.effervescence.app19.ca.R.id.mainContentSpace, fragment!!)
                         .commit()
             } else {
                 fragmentClass = currentFragmentClass
@@ -208,5 +232,17 @@ class HomeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         super.onDestroy()
 
         MediaManager.get().cancelAllRequests()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (::mAuthStateListener.isInitialized) {
+            mFirebaseAuth.addAuthStateListener(mAuthStateListener)
+        }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        mFirebaseAuth.removeAuthStateListener(mAuthStateListener)
     }
 }
