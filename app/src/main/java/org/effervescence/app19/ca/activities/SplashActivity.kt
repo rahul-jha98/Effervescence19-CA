@@ -19,6 +19,8 @@ import org.jetbrains.anko.startActivity
 import com.androidnetworking.error.ANError
 import com.androidnetworking.AndroidNetworking
 import com.androidnetworking.interfaces.JSONObjectRequestListener
+import com.firebase.ui.auth.AuthUI
+import com.google.firebase.auth.FirebaseAuth
 import io.paperdb.Paper
 import kotlinx.android.synthetic.main.activity_main.*
 import org.effervescence.app19.ca.R
@@ -173,7 +175,7 @@ class SplashActivity : AppCompatActivity() {
     }
 
     private fun startLogin() {
-        startActivity<LoginSignupActivity>()
+        startActivity<FirebaseLoginActivity>()
         finish()
     }
 
@@ -183,5 +185,4 @@ class SplashActivity : AppCompatActivity() {
         intent.data = uri
         startActivityForResult(intent, REQUEST_WRITE_PERMISSION)
     }
-
 }

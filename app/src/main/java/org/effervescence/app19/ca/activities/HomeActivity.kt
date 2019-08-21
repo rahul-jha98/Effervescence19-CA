@@ -32,9 +32,7 @@ class HomeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private var fragmentClass: Class<*>? = null
     private var currentPage = 1
     lateinit var prefs: SharedPreferences
-    private var mFirebaseAuth = FirebaseAuth.getInstance()
-    private lateinit var mAuthStateListener: FirebaseAuth.AuthStateListener
-    val RC_SIGN_IN = 1
+
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -63,26 +61,6 @@ class HomeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         nav_view.setCheckedItem(org.effervescence.app19.ca.R.id.nav_home)
 
         prefs = MyPreferences.customPrefs(this, Constants.MY_SHARED_PREFERENCE)
-
-        val providers = arrayListOf(
-                AuthUI.IdpConfig.EmailBuilder().build(),
-                AuthUI.IdpConfig.GoogleBuilder().build())
-
-        mAuthStateListener = FirebaseAuth.AuthStateListener {
-            val user = mFirebaseAuth.currentUser
-            if (user != null) {
-                //Already signed in
-            } else {
-                startActivityForResult(
-                        AuthUI.getInstance()
-                                .createSignInIntentBuilder()
-                                .setAvailableProviders(providers)
-                                .setTheme(R.style.LoginTheme)
-                                .build(),
-                        RC_SIGN_IN
-                )
-            }
-        }
     }
 
     override fun onBackPressed() {
@@ -234,17 +212,5 @@ class HomeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         super.onDestroy()
 
         MediaManager.get().cancelAllRequests()
-    }
-
-    override fun onResume() {
-        super.onResume()
-        if (::mAuthStateListener.isInitialized) {
-            mFirebaseAuth.addAuthStateListener(mAuthStateListener)
-        }
-    }
-
-    override fun onPause() {
-        super.onPause()
-        mFirebaseAuth.removeAuthStateListener(mAuthStateListener)
     }
 }
