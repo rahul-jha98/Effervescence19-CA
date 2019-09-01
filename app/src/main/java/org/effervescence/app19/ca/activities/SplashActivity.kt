@@ -173,7 +173,7 @@ class SplashActivity : AppCompatActivity() {
     }
 
     private fun startLogin() {
-        startActivity<LoginSignupActivity>()
+        startActivity<FirebaseLoginActivity>()
         finish()
     }
 
