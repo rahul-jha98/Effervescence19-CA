@@ -15,7 +15,15 @@
       },
       "oauth_client": [
         {
-          "client_id": "465425180811-194gdnh6o6e44vblmfvc4hha9rgj4ja0.apps.googleusercontent.com",
+          "client_id": "465425180811-0apu1u53vgh8ivoc5f25ujp5v53li5bv.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "org.effervescence.app19.ca",
+            "certificate_hash": "d9eb6f8021e2061442956a4a822d9e667d115a96"
+          }
+        },
+        {
+          "client_id": "465425180811-gbd7meg3oi0hutn3btrvpuj011vvadqc.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "org.effervescence.app19.ca",
