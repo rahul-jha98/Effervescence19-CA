@@ -13,10 +13,12 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
+import android.widget.Toast
 import com.androidnetworking.AndroidNetworking
 import com.androidnetworking.common.Priority
 import com.androidnetworking.error.ANError
 import com.androidnetworking.interfaces.JSONArrayRequestListener
+import com.google.firebase.database.*
 import kotlinx.android.synthetic.main.fragment_leader_board.*
 
 import org.effervescence.app19.ca.R
@@ -39,6 +41,8 @@ class LeaderBoardFragment : Fragment() {
     val list = ArrayList<LeaderbooardEntry>()
     lateinit var adapter: LeaderboardAdapter
     private lateinit var mListViewModel: LeaderboardList
+    private lateinit var database: FirebaseDatabase
+    private lateinit var databaseReference: DatabaseReference
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
@@ -60,6 +64,10 @@ class LeaderBoardFragment : Fragment() {
         leaderRecylcerView.isNestedScrollingEnabled = true
         leaderRecylcerView.addOnScrollListener(ScrollListener(back_view))
 
+        database = FirebaseDatabase.getInstance()
+        databaseReference = database.getReference("Users")
+
+
         if (mListViewModel.list == null) {
             getLeaderboardData()
         } else {
@@ -72,21 +80,45 @@ class LeaderBoardFragment : Fragment() {
     }
 
     private fun getLeaderboardData() {
-        AndroidNetworking.get(Constants.LEADERBOARD_URL)
-                .addHeaders(Constants.AUTHORIZATION_KEY, Constants.TOKEN_STRING + UserDetails.Token)
-                .setPriority(Priority.IMMEDIATE)
-                .setTag("leaderboardRequest")
-                .build()
-                .getAsJSONArray(object : JSONArrayRequestListener {
-                    override fun onResponse(response: JSONArray?) {
-                        populateListFromJson(response!!)
-                    }
+//        AndroidNetworking.get(Constants.LEADERBOARD_URL)
+//                .addHeaders(Constants.AUTHORIZATION_KEY, Constants.TOKEN_STRING + UserDetails.Token)
+//                .setPriority(Priority.IMMEDIATE)
+//                .setTag("leaderboardRequest")
+//                .build()
+//                .getAsJSONArray(object : JSONArrayRequestListener {
+//                    override fun onResponse(response: JSONArray?) {
+//                        populateListFromJson(response!!)
+//                    }
+//
+//                    override fun onError(anError: ANError?) {
+//                        showErrorMessage()
+//                    }
+//
+//                })
+        databaseReference.addValueEventListener(object : ValueEventListener {
+            override fun onCancelled(p0: DatabaseError) {
+            }
 
-                    override fun onError(anError: ANError?) {
-                        showErrorMessage()
-                    }
+            override fun onDataChange(p0: DataSnapshot) {
+                Toast.makeText(context, "Worked", Toast.LENGTH_LONG).show()
 
-                })
+                if (p0!!.exists()) {
+                    for (i in p0.children) {
+                        val user = i.getValue(LeaderbooardEntry::class.java)
+                        list.add(user!!)
+                    }
+                }
+
+
+                adapter.swapList(list)
+                mListViewModel.list = list
+
+                back_view.text = "See where you stand among campus ambassadors of other colleges"
+                progressLeaderboard.visibility = View.GONE
+                leaderRecylcerView.visibility = View.VISIBLE
+
+            }
+        })
     }
 
     private fun showErrorMessage() {
@@ -95,34 +127,33 @@ class LeaderBoardFragment : Fragment() {
     }
 
     private fun populateListFromJson(response: JSONArray) {
-        doAsync {
-            val len = response.length()
-
-            var entry: JSONObject
-            var name: String
-            var college: String
-            var points: Int
-            var isCurrentUser: Boolean
-            for (i in 0 until len) {
-                entry = response.getJSONObject(i)
-                name = entry.getString("name")
-                points = entry.getInt("points")
-                college = entry.getString("college")
-                isCurrentUser = entry.getBoolean("current_user")
-
-                list.add(LeaderbooardEntry(name, points, college, isCurrentUser))
-            }
-
-            uiThread {
-                adapter.swapList(list)
-                mListViewModel.list = list
-
-                back_view.text = "See where you stand among campus ambassadors of other colleges"
-                progressLeaderboard.visibility = View.GONE
-                leaderRecylcerView.visibility = View.VISIBLE
-            }
-        }
-
+//        doAsync {
+//            val len = response.length()
+//
+//            var entry: JSONObject
+//            var name: String
+//            var college: String
+//            var points: Int
+//            var isCurrentUser: Boolean
+//            for (i in 0 until len) {
+//                entry = response.getJSONObject(i)
+//                name = entry.getString("name")
+//                points = entry.getInt("points")
+//                college = entry.getString("college")
+//                isCurrentUser = entry.getBoolean("current_user")
+//
+//                list.add(LeaderbooardEntry(name, points, college, isCurrentUser))
+//            }
+//
+//            uiThread {
+//                adapter.swapList(list)
+//                mListViewModel.list = list
+//
+//                back_view.text = "See where you stand among campus ambassadors of other colleges"
+//                progressLeaderboard.visibility = View.GONE
+//                leaderRecylcerView.visibility = View.VISIBLE
+//            }
+//        }
 
     }
 
