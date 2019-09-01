@@ -2,11 +2,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="org.effervescence.app19.ca">
 
-    <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.CALL_PHONE" />
-
     <application
         android:name=".EffervescenceCA"
         android:allowBackup="true"
@@ -15,12 +10,10 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <meta-data
-            android:name="cloudinary://867857599265414:JBu1ZCiRKPjAzVU3chxr0I1pXj4@djvuib63r"
-            android:value="cloudinary://@djvuib63r" />
+        <activity android:name=".activities.FirebaseLoginActivity"></activity>
 
         <activity
-            android:name="org.effervescence.app19.ca.activities.SplashActivity"
+            android:name=".activities.SplashActivity"
             android:launchMode="singleTop"
             android:screenOrientation="portrait"
             android:theme="@style/SplashTheme">
@@ -30,21 +23,32 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="org.effervescence.app19.ca.activities.ChangePasswordActivity" />
+
+        <activity android:name=".activities.ChangePasswordActivity" />
         <activity
-            android:name="org.effervescence.app19.ca.activities.LoginSignupActivity"
+            android:name=".activities.LoginSignupActivity"
             android:screenOrientation="portrait"
             android:theme="@style/LoginSignupTheme"
             android:windowSoftInputMode="adjustResize" />
         <activity
-            android:name="org.effervescence.app19.ca.activities.HomeActivity"
+            android:name=".activities.HomeActivity"
             android:label="@string/title_activity_home"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
-        <activity android:name="org.effervescence.app19.ca.activities.EditUserDetailsActivity"
-            android:screenOrientation="portrait"/>
-        <activity android:name="org.effervescence.app19.ca.activities.ContactInfoActivity"
-            android:screenOrientation="portrait"/>
+        <activity
+            android:name=".activities.EditUserDetailsActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activities.ContactInfoActivity"
+            android:screenOrientation="portrait" />
+        <meta-data
+            android:name="cloudinary://867857599265414:JBu1ZCiRKPjAzVU3chxr0I1pXj4@djvuib63r"
+            android:value="cloudinary://@djvuib63r" />
     </application>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.CALL_PHONE" />
+
+    <uses-permission android:name="android.permission.INTERNET" />
 
 </manifest>
