@@ -34,7 +34,7 @@ class LeaderboardAdapter(val context: Context) : RecyclerView.Adapter<Leaderboar
     inner class LeaderBoardViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView){
         val nameTextView = itemView.findViewById<TextView>(R.id.helloText)
         val srNoTextView = itemView.findViewById<TextView>(R.id.srNoTextView)
-        val emailTextView = itemView.findViewById<TextView>(R.id.emailTextView)
+//        val emailTextView = itemView.findViewById<TextView>(R.id.emailTextView)
         val pointsTextView = itemView.findViewById<TextView>(R.id.pointsTextView)
         val separator = itemView.findViewById<View>(R.id.separator)
 

@@ -97,19 +97,20 @@ class LeaderBoardFragment : Fragment() {
 //                })
         databaseReference.addValueEventListener(object : ValueEventListener {
             override fun onCancelled(p0: DatabaseError) {
+                showErrorMessage()
             }
 
             override fun onDataChange(p0: DataSnapshot) {
-                Toast.makeText(context, "Worked", Toast.LENGTH_LONG).show()
+//                Toast.makeText(context, "Worked", Toast.LENGTH_LONG).show()
 
-                if (p0!!.exists()) {
+                if (p0.exists()) {
                     for (i in p0.children) {
                         val user = i.getValue(LeaderbooardEntry::class.java)
                         list.add(user!!)
                     }
                 }
 
-
+                list.sortByDescending { it.score }
                 adapter.swapList(list)
                 mListViewModel.list = list
 
@@ -122,7 +123,7 @@ class LeaderBoardFragment : Fragment() {
     }
 
     private fun showErrorMessage() {
-        back_view.text = "Coulds't fetch the leaderboard. Try checking the internet connection"
+        back_view.text = "Couldn't fetch the leaderboard. Try checking the internet connection"
         progressLeaderboard.visibility = View.GONE
     }
 
