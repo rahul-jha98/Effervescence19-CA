@@ -1,8 +1,8 @@
 package org.effervescence.app19.ca.adapters
 
-import android.support.v4.app.Fragment
-import android.support.v4.app.FragmentManager
-import android.support.v4.app.FragmentPagerAdapter
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
+import androidx.fragment.app.FragmentPagerAdapter
 import org.effervescence.app19.ca.fragments.LoginFragment
 import org.effervescence.app19.ca.fragments.SignupFragment
 import org.effervescence.app19.ca.fragments.UserDetailsInputFragment

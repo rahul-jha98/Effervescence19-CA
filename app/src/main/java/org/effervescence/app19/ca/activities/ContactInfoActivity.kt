@@ -1,6 +1,6 @@
 package org.effervescence.app19.ca.activities
 
-import android.support.v7.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.MenuItem
 import org.effervescence.app19.ca.R

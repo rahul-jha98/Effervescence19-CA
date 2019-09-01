@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.v4.widget.NestedScrollView  xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.core.widget.NestedScrollView  xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
-    <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <android.support.v7.widget.CardView
+        <androidx.cardview.widget.CardView
             android:id="@+id/cardView5"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -53,7 +53,7 @@
                     android:text="Points: 0"
                     android:textColor="@color/colorAccent" />
             </LinearLayout>
-        </android.support.v7.widget.CardView>
+        </androidx.cardview.widget.CardView>
 
         <TextView
             android:id="@+id/greetingsTextView"
@@ -84,7 +84,7 @@
             app:layout_constraintTop_toBottomOf="@+id/greetingsTextView"
             tools:text="Glad to have as our campus ambassador in IIIT Allahabad" />
 
-        <android.support.constraint.ConstraintLayout
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/constraintLayout"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -107,7 +107,7 @@
                 app:layout_constraintTop_toTopOf="parent"
                 app:srcCompat="@mipmap/badge" />
 
-            <android.support.constraint.Guideline
+            <androidx.constraintlayout.widget.Guideline
                 android:id="@+id/guideline5"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -168,9 +168,9 @@
                 app:layout_constraintTop_toTopOf="@+id/imageView11" />
 
 
-        </android.support.constraint.ConstraintLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
-        <android.support.v7.widget.CardView
+        <androidx.cardview.widget.CardView
             android:id="@+id/shareAppCardView"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -244,7 +244,7 @@
                         android:textColor="@color/colorPrimaryDark" />
                 </LinearLayout>
             </LinearLayout>
-        </android.support.v7.widget.CardView>
+        </androidx.cardview.widget.CardView>
 
         <TextView
             android:id="@+id/textView14"
@@ -261,5 +261,5 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/shareAppCardView" />
 
-    </android.support.constraint.ConstraintLayout>
-</android.support.v4.widget.NestedScrollView>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.core.widget.NestedScrollView>

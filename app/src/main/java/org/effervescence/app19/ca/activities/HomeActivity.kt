@@ -3,11 +3,11 @@ package org.effervescence.app19.ca.activities
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
-import android.support.design.widget.NavigationView
-import android.support.v4.app.Fragment
-import android.support.v4.view.GravityCompat
-import android.support.v7.app.ActionBarDrawerToggle
-import android.support.v7.app.AppCompatActivity
+import com.google.android.material.navigation.NavigationView
+import androidx.fragment.app.Fragment
+import androidx.core.view.GravityCompat
+import androidx.appcompat.app.ActionBarDrawerToggle
+import androidx.appcompat.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.TextView

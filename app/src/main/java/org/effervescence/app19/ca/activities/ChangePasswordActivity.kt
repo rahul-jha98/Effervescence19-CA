@@ -1,7 +1,7 @@
 package org.effervescence.app19.ca.activities
 
 import android.app.ProgressDialog
-import android.support.v7.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.MenuItem
 import com.androidnetworking.AndroidNetworking

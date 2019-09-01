@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     tools:context=".fragments.UserDetailsInputFragment">
 
-    <android.support.v4.widget.NestedScrollView
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_centerVertical="true">
@@ -16,7 +16,7 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal">
 
-            <android.support.v7.widget.CardView
+            <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="8dp"
@@ -39,34 +39,34 @@
                         android:textSize="22sp"
                         android:textStyle="bold" />
 
-                    <android.support.design.widget.TextInputLayout
+                    <com.google.android.material.textfield.TextInputLayout
                         android:id="@+id/nameEditTextViewLayout"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="8dp"
                         android:layout_marginTop="8dp">
 
-                        <android.support.design.widget.TextInputEditText
+                        <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/nameEditTextView"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:hint="Name"
                             android:inputType="textCapWords" />
-                    </android.support.design.widget.TextInputLayout>
+                    </com.google.android.material.textfield.TextInputLayout>
 
-                    <android.support.design.widget.TextInputLayout
+                    <com.google.android.material.textfield.TextInputLayout
                         android:id="@+id/collegeEditTextViewLayout"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="8dp"
                         android:layout_marginTop="8dp">
 
-                        <android.support.design.widget.TextInputEditText
+                        <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/collegeEditTextView"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:hint="College" />
-                    </android.support.design.widget.TextInputLayout>
+                    </com.google.android.material.textfield.TextInputLayout>
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -92,7 +92,7 @@
                             android:layout_marginTop="4dp"
                             android:orientation="horizontal">
 
-                            <android.support.v7.widget.AppCompatRadioButton
+                            <androidx.appcompat.widget.AppCompatRadioButton
                                 android:id="@+id/maleRadioButton"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
@@ -100,7 +100,7 @@
                                 android:checked="true"
                                 android:text="@string/male_radio_button" />
 
-                            <android.support.v7.widget.AppCompatRadioButton
+                            <androidx.appcompat.widget.AppCompatRadioButton
                                 android:id="@+id/femaleRadioButton"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
@@ -140,48 +140,48 @@
                             android:textSize="20sp" />
                     </LinearLayout>
 
-                    <android.support.design.widget.TextInputLayout
+                    <com.google.android.material.textfield.TextInputLayout
                         android:id="@+id/mobileNoEditTextViewLayout"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="8dp"
                         android:layout_marginTop="8dp">
 
-                        <android.support.design.widget.TextInputEditText
+                        <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/mobileNoEditTextView"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:hint="Mobile No."
                             android:inputType="phone" />
-                    </android.support.design.widget.TextInputLayout>
+                    </com.google.android.material.textfield.TextInputLayout>
 
-                    <android.support.design.widget.TextInputLayout
+                    <com.google.android.material.textfield.TextInputLayout
                         android:id="@+id/referralCodeEditTextViewLayout"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="8dp"
                         android:layout_marginTop="8dp">
 
-                        <android.support.design.widget.TextInputEditText
+                        <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/referralCodeEditTextView"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:hint="Referral Code" />
-                    </android.support.design.widget.TextInputLayout>
+                    </com.google.android.material.textfield.TextInputLayout>
 
-                    <android.support.design.widget.TextInputLayout
+                    <com.google.android.material.textfield.TextInputLayout
                         android:id="@+id/fbIdLinkEditTextViewLayout"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="8dp"
                         android:layout_marginTop="8dp">
 
-                        <android.support.design.widget.TextInputEditText
+                        <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/fbIdLinkEditTextView"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:hint="Facebook ID link" />
-                    </android.support.design.widget.TextInputLayout>
+                    </com.google.android.material.textfield.TextInputLayout>
 
                     <Button
                         android:id="@+id/userDetailsSubmitButton"
@@ -195,7 +195,7 @@
                         android:textStyle="bold" />
 
                 </LinearLayout>
-            </android.support.v7.widget.CardView>
+            </androidx.cardview.widget.CardView>
         </LinearLayout>
-    </android.support.v4.widget.NestedScrollView>
+    </androidx.core.widget.NestedScrollView>
 </RelativeLayout>
