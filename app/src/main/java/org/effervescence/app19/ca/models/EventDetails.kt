@@ -1,4 +1,6 @@
 package org.effervescence.app19.ca.models
 
-class EventDetails(var eventId: Int = -1, var eventName: String, var eventDescription:String,
-            var eventPrize: Int = -1, var eventPoint: Int = -1, var eventFee: Int = -1)
+class EventDetails(var createdAt: Int, var note: String, var points: Int, var task: String) {
+    constructor() : this(0, "", 0, "")
+}
+

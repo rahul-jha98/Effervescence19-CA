@@ -32,11 +32,11 @@ class MyEventsRecyclerViewAdapter(@get:JvmName("getEventsList_") private var mEv
 
         val currentEvent = mEventsList[position]
 
-        holder.titleTV.text = currentEvent.eventName
-        holder.descriptionTV.text = currentEvent.eventDescription
-        holder.pointsTV.text = currentEvent.eventPoint.toString()
+        holder.titleTV.text = currentEvent.task
+        holder.descriptionTV.text = currentEvent.note
+        holder.pointsTV.text = currentEvent.points.toString()
 
-        holder.pointTextTV.text = if (currentEvent.eventPoint > 1) "pts" else "point"
+        holder.pointTextTV.text = if (currentEvent.points > 1) "pts" else "point"
 
     }
 

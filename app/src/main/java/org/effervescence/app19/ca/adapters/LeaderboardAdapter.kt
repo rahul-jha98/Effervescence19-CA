@@ -7,11 +7,11 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import org.effervescence.app19.ca.R
-import org.effervescence.app19.ca.models.LeaderbooardEntry
+import org.effervescence.app19.ca.models.LeaderboardEntry
 
 class LeaderboardAdapter(val context: Context) : RecyclerView.Adapter<LeaderboardAdapter.LeaderBoardViewHolder>() {
 
-    private var leaderboardEntry = ArrayList<LeaderbooardEntry>()
+    private var leaderboardEntry = ArrayList<LeaderboardEntry>()
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): LeaderBoardViewHolder {
         val itemView = LayoutInflater.from(context).inflate(R.layout.list_item_leaderboard, parent, false)
         return LeaderBoardViewHolder(itemView)
@@ -38,11 +38,11 @@ class LeaderboardAdapter(val context: Context) : RecyclerView.Adapter<Leaderboar
         val pointsTextView = itemView.findViewById<TextView>(R.id.pointsTextView)
         val separator = itemView.findViewById<View>(R.id.separator)
 
-        fun bind(entry: LeaderbooardEntry, position: Int){
+        fun bind(entry: LeaderboardEntry, position: Int){
             nameTextView.text = entry.name
             srNoTextView.text = "$position."
-            pointsTextView.text = "${entry.points}"
-            emailTextView.text = entry.collegeName
+            pointsTextView.text = "${entry.score}"
+//            emailTextView.text = entry.collegeName
             if(entry.isCurrentUser){
                 itemView.setBackgroundResource(R.color.gray1)
             } else {
@@ -56,16 +56,16 @@ class LeaderboardAdapter(val context: Context) : RecyclerView.Adapter<Leaderboar
         }
     }
 
-    fun swapList(list: ArrayList<LeaderbooardEntry>){
+    fun swapList(list: ArrayList<LeaderboardEntry>){
         if(leaderboardEntry.size == 0){
-            leaderboardEntry.add(LeaderbooardEntry())
-            leaderboardEntry.add(LeaderbooardEntry())
+            leaderboardEntry.add(LeaderboardEntry())
+            leaderboardEntry.add(LeaderboardEntry())
         } else {
             leaderboardEntry.removeAt(leaderboardEntry.size - 1)
         }
 
         leaderboardEntry.addAll(list)
-        leaderboardEntry.add(LeaderbooardEntry())
+        leaderboardEntry.add(LeaderboardEntry())
         notifyDataSetChanged()
     }
 }

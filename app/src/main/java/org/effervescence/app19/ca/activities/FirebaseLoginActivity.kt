@@ -13,6 +13,7 @@ import org.effervescence.app19.ca.R
 import org.effervescence.app19.ca.fragments.LoginFragment
 import org.effervescence.app19.ca.fragments.SignupFragment
 import org.effervescence.app19.ca.fragments.UserDetailsInputFragment
+import org.jetbrains.anko.startActivity
 
 class FirebaseLoginActivity : AppCompatActivity() {
 
@@ -32,6 +33,7 @@ class FirebaseLoginActivity : AppCompatActivity() {
             val user = mFirebaseAuth.currentUser
             if (user != null) {
                 //Already signed in
+                startActivity<HomeActivity>()
             } else {
                 startActivityForResult(
                         AuthUI.getInstance()

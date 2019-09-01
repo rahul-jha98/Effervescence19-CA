@@ -1,21 +1,29 @@
 {
   "project_info": {
-    "project_number": "805198425140",
-    "firebase_url": "https://effe-19ca-app.firebaseio.com",
-    "project_id": "effe-19ca-app",
-    "storage_bucket": "effe-19ca-app.appspot.com"
+    "project_number": "465425180811",
+    "firebase_url": "https://effe-19ca.firebaseio.com",
+    "project_id": "effe-19ca",
+    "storage_bucket": "effe-19ca.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:805198425140:android:30a9e44931dee604",
+        "mobilesdk_app_id": "1:465425180811:android:30a9e44931dee604",
         "android_client_info": {
           "package_name": "org.effervescence.app19.ca"
         }
       },
       "oauth_client": [
         {
-          "client_id": "805198425140-gbgie030io9m8u4sq9prd8gkqurco74h.apps.googleusercontent.com",
+          "client_id": "465425180811-0apu1u53vgh8ivoc5f25ujp5v53li5bv.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "org.effervescence.app19.ca",
+            "certificate_hash": "d9eb6f8021e2061442956a4a822d9e667d115a96"
+          }
+        },
+        {
+          "client_id": "465425180811-gbd7meg3oi0hutn3btrvpuj011vvadqc.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "org.effervescence.app19.ca",
@@ -23,20 +31,20 @@
           }
         },
         {
-          "client_id": "805198425140-a6atf19kk0lrge9pbujbg6v6mep5i6j7.apps.googleusercontent.com",
+          "client_id": "465425180811-lvcvpqps929qqpl3676m7ejhjurpl1gf.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyB2ZHHWiVs7Wu8Jue8IuX9-m-5ZrmVKNZA"
+          "current_key": "AIzaSyBD6X09DUa34zkOm8pIZ9OUUfQiIwj3Z2g"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "805198425140-a6atf19kk0lrge9pbujbg6v6mep5i6j7.apps.googleusercontent.com",
+              "client_id": "465425180811-lvcvpqps929qqpl3676m7ejhjurpl1gf.apps.googleusercontent.com",
               "client_type": 3
             }
           ]

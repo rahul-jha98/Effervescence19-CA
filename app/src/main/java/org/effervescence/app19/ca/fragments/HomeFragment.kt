@@ -45,16 +45,16 @@ class HomeFragment : Fragment() {
             displayReportCard()
         }
 
-        shareAppCardView.setOnClickListener {
-            val referralCode = UserDetails.referralCode
-            val sendIntent: Intent = Intent().apply {
-                type = "text/plain"
-                action = Intent.ACTION_SEND
-                putExtra(Intent.EXTRA_TEXT, "Hey, use my referral code \"$referralCode\" " +
-                        "while registering for Effervescence'18 CA app to get extra 10 points. Download now: ")
-            }
-            startActivity(sendIntent)
-        }
+//        shareAppCardView.setOnClickListener {
+//            val referralCode = UserDetails.referralCode
+//            val sendIntent: Intent = Intent().apply {
+//                type = "text/plain"
+//                action = Intent.ACTION_SEND
+//                putExtra(Intent.EXTRA_TEXT, "Hey, use my referral code \"$referralCode\" " +
+//                        "while registering for Effervescence'18 CA app to get extra 10 points. Download now: ")
+//            }
+//            startActivity(sendIntent)
+//        }
     }
 
     private fun displayDetails() {
