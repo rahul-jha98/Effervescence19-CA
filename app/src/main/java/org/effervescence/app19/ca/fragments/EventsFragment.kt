@@ -7,6 +7,7 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.net.Uri
 import android.os.Bundle
+import android.os.Handler
 import android.provider.MediaStore
 import android.provider.OpenableColumns
 import androidx.fragment.app.Fragment
@@ -23,6 +24,7 @@ import com.androidnetworking.interfaces.JSONArrayRequestListener
 import com.cloudinary.android.MediaManager
 import com.cloudinary.android.callback.ErrorInfo
 import com.cloudinary.android.callback.UploadCallback
+import com.google.firebase.database.*
 import org.effervescence.app19.ca.R
 import org.effervescence.app19.ca.adapters.MyEventsRecyclerViewAdapter
 import org.json.JSONArray
@@ -50,6 +52,9 @@ class EventsFragment : Fragment() {
     private var mEventDetailsList = ArrayList<EventDetails>()
     private var listener: OnFragmentInteractionListener? = null
     var listAdapter: MyEventsRecyclerViewAdapter = MyEventsRecyclerViewAdapter(mEventDetailsList)
+    private lateinit var database: FirebaseDatabase
+    private lateinit var databaseReference: DatabaseReference
+
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
@@ -64,8 +69,9 @@ class EventsFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         events_swipe_refresh.isRefreshing = true
+        database = FirebaseDatabase.getInstance()
+        databaseReference = database.getReference("TASKS")
         buildRecyclerView()
-
         listAdapter.setOnClickListener(object : MyEventsRecyclerViewAdapter.OnItemClickListener {
             override fun onItemClicked(position: Int) {
                 mPickedEventId = position + 1
@@ -76,11 +82,20 @@ class EventsFragment : Fragment() {
     }
 
     private fun updateEventsListCache() {
-        doAsync {
-            Paper.book().delete(Constants.EVENTS_CACHED_KEY)
-        }
-        mPrefs[Constants.EVENTS_CACHED_KEY] = Constants.EVENTS_CACHED_DEFAULT
-        getEventsList()
+//        doAsync {
+//            Paper.book().delete(Constants.EVENTS_CACHED_KEY)
+//        }
+//        mPrefs[Constants.EVENTS_CACHED_KEY] = Constants.EVENTS_CACHED_DEFAULT
+//        getEventsList()
+//        Handler().postDelayed(
+//                {
+//                    events_swipe_refresh.isRefreshing = false
+//                    // This method will be executed once the timer is over
+//                },
+//                1000 // value in milliseconds
+//        )
+        mEventDetailsList.clear()
+        buildRecyclerView()
     }
 
     private fun buildRecyclerView() {
@@ -92,44 +107,61 @@ class EventsFragment : Fragment() {
     }
 
     private fun getEventsList() {
-        var i = 0
-        if (isEventsCached()) {
-            doAsync {
-                mEventDetailsList = ArrayList(Paper.book()
-                        .read<ArrayList<EventDetails>>(Constants.EVENTS_CACHED_KEY))
-                uiThread {
-                    listAdapter.swapList(mEventDetailsList)
-                    listAdapter.notifyDataSetChanged()
-                    events_swipe_refresh.isRefreshing = false
-                }
-            }
-        } else {
-            mPrefs[Constants.EVENTS_CACHED_KEY] = "true"
-            AndroidNetworking.get(Constants.EVENTS_LIST_URL)
-                    .setTag("eventsListRequest")
-                    .build()
-                    .getAsJSONArray(object : JSONArrayRequestListener {
-                        override fun onResponse(response: JSONArray) {
-                            if (response.length() > 0) {
-                                mEventDetailsList.clear()
-                                while (response.length() > i) {
-                                    mEventDetailsList.add(createEventDetailsObject(response.getJSONObject(i++)))
-                                }
-                            }
-                            listAdapter.notifyDataSetChanged()
-                            events_swipe_refresh.isRefreshing = false
-                            doAsync {
-                                Paper.book().write(Constants.EVENTS_CACHED_KEY, mEventDetailsList)
-                            }
-                        }
+        databaseReference.addValueEventListener(object : ValueEventListener {
+            override fun onCancelled(p0: DatabaseError) {
 
-                        override fun onError(error: ANError) {
-                            Log.e("EventsFragment", error.errorBody)
-                            events_swipe_refresh.isRefreshing = false
-                            Toast.makeText(context, "Connection Broke :(", Toast.LENGTH_SHORT).show()
-                        }
-                    })
-        }
+            }
+
+            override fun onDataChange(p0: DataSnapshot) {
+                if(p0.exists()) {
+                    for (i in p0.children) {
+                        val task = i.getValue(EventDetails::class.java)
+                        mEventDetailsList.add(task!!)
+                    }
+                }
+                listAdapter.notifyDataSetChanged()
+                events_swipe_refresh.isRefreshing = false
+            }
+        })
+
+//        var i = 0
+//        if (isEventsCached()) {
+//            doAsync {
+//                mEventDetailsList = ArrayList(Paper.book()
+//                        .read<ArrayList<EventDetails>>(Constants.EVENTS_CACHED_KEY))
+//                uiThread {
+//                    listAdapter.swapList(mEventDetailsList)
+//                    listAdapter.notifyDataSetChanged()
+//                    events_swipe_refresh.isRefreshing = false
+//                }
+//            }
+//        } else {
+//            mPrefs[Constants.EVENTS_CACHED_KEY] = "true"
+//            AndroidNetworking.get(Constants.EVENTS_LIST_URL)
+//                    .setTag("eventsListRequest")
+//                    .build()
+//                    .getAsJSONArray(object : JSONArrayRequestListener {
+//                        override fun onResponse(response: JSONArray) {
+//                            if (response.length() > 0) {
+//                                mEventDetailsList.clear()
+//                                while (response.length() > i) {
+////                                    mEventDetailsList.add(createEventDetailsObject(response.getJSONObject(i++)))
+//                                }
+//                            }
+//                            listAdapter.notifyDataSetChanged()
+//                            events_swipe_refresh.isRefreshing = false
+//                            doAsync {
+//                                Paper.book().write(Constants.EVENTS_CACHED_KEY, mEventDetailsList)
+//                            }
+//                        }
+//
+//                        override fun onError(error: ANError) {
+//                            Log.e("EventsFragment", error.errorBody)
+//                            events_swipe_refresh.isRefreshing = false
+//                            Toast.makeText(context, "Connection Broke :(", Toast.LENGTH_SHORT).show()
+//                        }
+//                    })
+//        }
     }
 
     fun openImagePicker() {
@@ -221,15 +253,15 @@ class EventsFragment : Fragment() {
         return result
     }
 
-    fun createEventDetailsObject(eventJSONObject: JSONObject): EventDetails {
-
-        return EventDetails(eventJSONObject.optInt(Constants.EVENT_ID_KEY),
-                eventJSONObject.optString(Constants.EVENT_NAME_KEY),
-                eventJSONObject.optString(Constants.EVENT_DESCRIPTION_KEY),
-                eventJSONObject.optInt(Constants.EVENT_PRIZE_KEY),
-                eventJSONObject.optInt(Constants.EVENT_POINTS_KEY),
-                eventJSONObject.optInt(Constants.EVENT_FEE_KEY))
-    }
+//    fun createEventDetailsObject(eventJSONObject: JSONObject): EventDetails {
+//
+//        return EventDetails(eventJSONObject.optInt(Constants.EVENT_ID_KEY),
+//                eventJSONObject.optString(Constants.EVENT_NAME_KEY),
+//                eventJSONObject.optString(Constants.EVENT_DESCRIPTION_KEY),
+//                eventJSONObject.optInt(Constants.EVENT_PRIZE_KEY),
+//                eventJSONObject.optInt(Constants.EVENT_POINTS_KEY),
+//                eventJSONObject.optInt(Constants.EVENT_FEE_KEY))
+//    }
 
     private fun isEventsCached(): Boolean {
         return when(mPrefs[Constants.EVENTS_CACHED_KEY, Constants.EVENTS_CACHED_DEFAULT]) {
