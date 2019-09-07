@@ -231,7 +231,7 @@ class EventsFragment : Fragment() {
     private fun uploadImage(){
 //        openImagePicker();
         if(filePath != null){
-            val ref = mStorageReference?.child("/" + UUID.randomUUID().toString())
+            val ref = mStorageReference?.child("/" + System.currentTimeMillis().toString())
             val uploadTask = ref?.putFile(filePath!!)
 
             val urlTask = uploadTask?.continueWithTask(Continuation<UploadTask.TaskSnapshot, Task<Uri>> { task ->
