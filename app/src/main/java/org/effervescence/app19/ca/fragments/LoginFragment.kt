@@ -74,7 +74,6 @@ class LoginFragment : Fragment() {
                             prefs[Constants.KEY_USERNAME] = username
                             prefs[Constants.KEY_TOKEN] = token
                         } catch (e: Exception){
-                            Log.d("Response", response.toString())
                         }
                         onLoginSuccess()
                         progressDialog.dismiss()

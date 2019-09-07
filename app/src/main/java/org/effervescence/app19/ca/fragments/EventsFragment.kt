@@ -68,6 +68,7 @@ class EventsFragment : Fragment() {
     }
 
     private var currentPoints = -1
+    private var currentUploads = -1
     private var mPickedEventId = -1
     private var mFirebaseStorage: FirebaseStorage? = null
     private var mStorageReference: StorageReference? = null
@@ -156,7 +157,6 @@ class EventsFragment : Fragment() {
             }
 
             override fun onDataChange(p0: DataSnapshot) {
-                Toast.makeText(context,p0.key.toString(),Toast.LENGTH_LONG)
                 if(p0.exists()) {
                     for (i in p0.children) {
                         var task = i.getValue(EventDetails::class.java)
@@ -260,7 +260,7 @@ class EventsFragment : Fragment() {
         if(filePath != null){
             val timeStamp = System.currentTimeMillis().toString()
             val ref = mStorageReference?.child("/" + timeStamp)
-            val uploadTask = ref?.putFile(filePath!!)
+            val uploadTask = ref?.putFile(filePath!!)!!
 
             val taskId = mEventDetailsList[mPickedEventId-1].uid
             val key = subsDatabaseReference.push().key
@@ -268,9 +268,9 @@ class EventsFragment : Fragment() {
 
             val sub = SubmissionDetalis(uid + "%2F" + timeStamp, taskId + uid)
 
-//            subsDatabaseReference.child(key!!).setValue(sub).addOnCompleteListener {
-//                Toast.makeText(context, "Image uploaded", Toast.LENGTH_LONG).show()
-//            }
+            subsDatabaseReference.child(key!!).setValue(sub).addOnCompleteListener {
+                Toast.makeText(context, "Image uploaded successfully!", Toast.LENGTH_LONG).show()
+            }
 
             val taskPoints = mEventDetailsList[mPickedEventId-1].points
 
@@ -287,8 +287,13 @@ class EventsFragment : Fragment() {
 
                                 val x = i.getValue().toString()
                                 currentPoints = x.toInt()
-                                Toast.makeText(context, currentPoints.toString(), Toast.LENGTH_LONG).show()
                                 updateScore(currentPoints, taskPoints, uid)
+                            }
+
+                            if (i.key == "uploads") {
+                                val x = i.getValue().toString()
+                                currentUploads = x.toInt()
+                                updateUploads(currentUploads, uid)
                             }
                         }
                     }
@@ -306,7 +311,6 @@ class EventsFragment : Fragment() {
             })?.addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     val downloadUri = task.result
-                    Toast.makeText(context,"Image Uploaded",Toast.LENGTH_SHORT).show()
 
 
 //                    addUploadRecordToDb(downloadUri.toString())
@@ -324,8 +328,15 @@ class EventsFragment : Fragment() {
     private fun updateScore(score: Int, taskPoints: Int, uid: String) {
         val newScore = score + taskPoints
 
-        val ref = database.getReference("Users").child(uid).child("score")
-        ref.setValue(newScore)
+        val scoreRef = database.getReference("Users").child(uid).child("score")
+        scoreRef.setValue(newScore)
+    }
+
+    private fun updateUploads(uploads: Int, uid: String) {
+        val newUploads = uploads + 1
+
+        val uploadsRef = database.getReference("Users").child(uid).child("uploads")
+        uploadsRef.setValue(newUploads)
     }
 
     /* private fun getTitleFromUri(uri: Uri): String {
