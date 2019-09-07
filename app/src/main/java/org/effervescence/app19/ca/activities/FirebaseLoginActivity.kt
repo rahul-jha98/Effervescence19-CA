@@ -98,7 +98,6 @@ class FirebaseLoginActivity : AppCompatActivity() {
 
             override fun onDataChange(p0: DataSnapshot) {
                 if (!p0.hasChild(uid)) {
-                    Toast.makeText(applicationContext, "Method called", Toast.LENGTH_LONG).show()
                     val user = User(name = displayName, score = 0, uid = uid, uploads = 0)
                     databaseReference.child(uid).setValue(user)
                 }
