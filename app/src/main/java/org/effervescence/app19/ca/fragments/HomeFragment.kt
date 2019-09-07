@@ -79,7 +79,6 @@ class HomeFragment : Fragment() {
     }
 
     private fun displayReportCard() {
-        pointsTextViewHome?.text = "Points: ${UserDetails.points}"
 
         val id = FirebaseAuth.getInstance().currentUser!!.uid
         var position = list.size

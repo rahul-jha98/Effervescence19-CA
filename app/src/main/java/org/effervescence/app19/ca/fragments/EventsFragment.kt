@@ -3,6 +3,7 @@ package org.effervescence.app19.ca.fragments
 import android.app.Activity
 import android.app.Activity.RESULT_CANCELED
 import android.app.Activity.RESULT_OK
+import android.app.AlertDialog
 import android.app.ProgressDialog
 import android.content.*
 import android.graphics.Bitmap
@@ -146,6 +147,7 @@ class EventsFragment : Fragment() {
             }
 
             override fun onDataChange(p0: DataSnapshot) {
+                Toast.makeText(context,p0.key.toString(),Toast.LENGTH_LONG)
                 if(p0.exists()) {
                     for (i in p0.children) {
                         var task = i.getValue(EventDetails::class.java)
@@ -239,6 +241,11 @@ class EventsFragment : Fragment() {
 
     private fun uploadImage(){
 //        openImagePicker();
+        val dialogBuilder = AlertDialog.Builder(context)
+        val alert = dialogBuilder.create()
+        // set title for alert dialog box
+        alert.setTitle("Image Upload")
+        // show alert dialog
         if(filePath != null){
             val timeStamp = System.currentTimeMillis().toString()
             val ref = mStorageReference?.child("/" + timeStamp)
@@ -288,6 +295,9 @@ class EventsFragment : Fragment() {
             })?.addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     val downloadUri = task.result
+                    dialogBuilder.setMessage("Uploading")
+                    alert.show()
+
 //                    addUploadRecordToDb(downloadUri.toString())
                 } else {
                     // Handle failures
