@@ -43,9 +43,12 @@ import kotlinx.android.synthetic.main.app_bar_home.*
 import kotlinx.android.synthetic.main.fragment_events.*
 import kotlinx.android.synthetic.main.fragment_events_list_item.*
 import kotlinx.android.synthetic.main.fragment_events_list_item.view.*
+import kotlinx.android.synthetic.main.fragment_leader_board.*
 import kotlinx.android.synthetic.main.nav_header_home.*
 import org.effervescence.app19.ca.listeners.OnFragmentInteractionListener
 import org.effervescence.app19.ca.models.EventDetails
+import org.effervescence.app19.ca.models.LeaderbooardEntry
+import org.effervescence.app19.ca.models.SubmissionDetalis
 import org.effervescence.app19.ca.utilities.*
 import org.effervescence.app19.ca.utilities.MyPreferences.get
 import org.effervescence.app19.ca.utilities.MyPreferences.set
@@ -62,6 +65,7 @@ class EventsFragment : Fragment() {
         const val PICK_IMAGE_REQUEST = 71
     }
 
+    private var currentPoints = -1
     private var mPickedEventId = -1
     private var mFirebaseStorage: FirebaseStorage? = null
     private var mStorageReference: StorageReference? = null
@@ -72,7 +76,9 @@ class EventsFragment : Fragment() {
     private var listener: OnFragmentInteractionListener? = null
     var listAdapter: MyEventsRecyclerViewAdapter = MyEventsRecyclerViewAdapter(mEventDetailsList)
     private lateinit var database: FirebaseDatabase
-    private lateinit var databaseReference: DatabaseReference
+    private lateinit var tasksDatabaseReference: DatabaseReference
+    private lateinit var subsDatabaseReference: DatabaseReference
+    private lateinit var userDatabaseReference: DatabaseReference
 
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
@@ -95,7 +101,9 @@ class EventsFragment : Fragment() {
         mStorageReference = mFirebaseStorage!!.getReference(uid)
 
         database = FirebaseDatabase.getInstance()
-        databaseReference = database.getReference("TASKS")
+        tasksDatabaseReference = database.getReference("TASKS")
+        subsDatabaseReference = database.getReference("Subs")
+
         buildRecyclerView()
         listAdapter.setOnClickListener(object : MyEventsRecyclerViewAdapter.OnItemClickListener {
             override fun onItemClicked(position: Int) {
@@ -132,7 +140,7 @@ class EventsFragment : Fragment() {
     }
 
     private fun getEventsList() {
-        databaseReference.addValueEventListener(object : ValueEventListener {
+        tasksDatabaseReference.addValueEventListener(object : ValueEventListener {
             override fun onCancelled(p0: DatabaseError) {
 
             }
@@ -140,7 +148,8 @@ class EventsFragment : Fragment() {
             override fun onDataChange(p0: DataSnapshot) {
                 if(p0.exists()) {
                     for (i in p0.children) {
-                        val task = i.getValue(EventDetails::class.java)
+                        var task = i.getValue(EventDetails::class.java)
+                        task?.uid = i.key
                         mEventDetailsList.add(task!!)
                     }
                 }
@@ -231,8 +240,43 @@ class EventsFragment : Fragment() {
     private fun uploadImage(){
 //        openImagePicker();
         if(filePath != null){
-            val ref = mStorageReference?.child("/" + System.currentTimeMillis().toString())
+            val timeStamp = System.currentTimeMillis().toString()
+            val ref = mStorageReference?.child("/" + timeStamp)
             val uploadTask = ref?.putFile(filePath!!)
+
+            val taskId = mEventDetailsList[mPickedEventId-1].uid
+            val key = subsDatabaseReference.push().key
+            val uid = FirebaseAuth.getInstance().currentUser!!.uid
+
+            val sub = SubmissionDetalis(uid + "%2F" + timeStamp, taskId + uid)
+
+//            subsDatabaseReference.child(key!!).setValue(sub).addOnCompleteListener {
+//                Toast.makeText(context, "Image uploaded", Toast.LENGTH_LONG).show()
+//            }
+
+            val taskPoints = mEventDetailsList[mPickedEventId-1].points
+
+            userDatabaseReference = database.getReference("Users").child(uid)
+
+            userDatabaseReference.addListenerForSingleValueEvent(object : ValueEventListener {
+                override fun onCancelled(p0: DatabaseError) {
+                }
+
+                override fun onDataChange(p0: DataSnapshot) {
+                    if (p0.exists()) {
+                        for (i in p0.children) {
+                            if (i.key == "score") {
+
+                                val x = i.getValue().toString()
+                                currentPoints = x.toInt()
+                                Toast.makeText(context, currentPoints.toString(), Toast.LENGTH_LONG).show()
+                                updateScore(currentPoints, taskPoints, uid)
+                            }
+                        }
+                    }
+
+                }
+            })
 
             val urlTask = uploadTask?.continueWithTask(Continuation<UploadTask.TaskSnapshot, Task<Uri>> { task ->
                 if (!task.isSuccessful) {
@@ -256,6 +300,12 @@ class EventsFragment : Fragment() {
         }
     }
 
+    private fun updateScore(score: Int, taskPoints: Int, uid: String) {
+        val newScore = score + taskPoints
+
+        val ref = database.getReference("Users").child(uid).child("score")
+        ref.setValue(newScore)
+    }
 
     /* private fun getTitleFromUri(uri: Uri): String {
          var result = ""
