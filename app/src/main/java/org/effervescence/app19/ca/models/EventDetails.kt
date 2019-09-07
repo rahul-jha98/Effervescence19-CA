@@ -1,4 +1,8 @@
 package org.effervescence.app19.ca.models
 
-class EventDetails(var eventId: Int = -1, var eventName: String, var eventDescription:String,
-            var eventPrize: Int = -1, var eventPoint: Int = -1, var eventFee: Int = -1)
+class EventDetails(
+        var createdAt: Long = 0,
+        var note: String = "",
+        var task:String = "",
+        var points: Int = 0
+)

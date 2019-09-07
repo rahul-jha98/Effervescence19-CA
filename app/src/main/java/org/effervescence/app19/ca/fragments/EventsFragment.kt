@@ -1,12 +1,14 @@
 package org.effervescence.app19.ca.fragments
 
+import android.app.Activity
+import android.app.Activity.RESULT_CANCELED
 import android.app.Activity.RESULT_OK
 import android.app.ProgressDialog
-import android.content.Context
-import android.content.Intent
-import android.content.SharedPreferences
+import android.content.*
+import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Bundle
+import android.os.Handler
 import android.provider.MediaStore
 import android.provider.OpenableColumns
 import androidx.fragment.app.Fragment
@@ -17,18 +19,31 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AnimationUtils
 import android.widget.Toast
+import androidx.annotation.NonNull
 import com.androidnetworking.AndroidNetworking
 import com.androidnetworking.error.ANError
 import com.androidnetworking.interfaces.JSONArrayRequestListener
 import com.cloudinary.android.MediaManager
 import com.cloudinary.android.callback.ErrorInfo
 import com.cloudinary.android.callback.UploadCallback
+import com.google.android.gms.tasks.Continuation
+import com.google.android.gms.tasks.Task
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.*
+//import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.storage.FirebaseStorage
+import com.google.firebase.storage.StorageReference
+import com.google.firebase.storage.UploadTask
 import org.effervescence.app19.ca.R
 import org.effervescence.app19.ca.adapters.MyEventsRecyclerViewAdapter
 import org.json.JSONArray
 import org.json.JSONObject
 import io.paperdb.Paper
+import kotlinx.android.synthetic.main.app_bar_home.*
 import kotlinx.android.synthetic.main.fragment_events.*
+import kotlinx.android.synthetic.main.fragment_events_list_item.*
+import kotlinx.android.synthetic.main.fragment_events_list_item.view.*
+import kotlinx.android.synthetic.main.nav_header_home.*
 import org.effervescence.app19.ca.listeners.OnFragmentInteractionListener
 import org.effervescence.app19.ca.models.EventDetails
 import org.effervescence.app19.ca.utilities.*
@@ -36,20 +51,29 @@ import org.effervescence.app19.ca.utilities.MyPreferences.get
 import org.effervescence.app19.ca.utilities.MyPreferences.set
 import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.uiThread
+import java.io.IOException
+import java.util.*
 import kotlin.collections.ArrayList
+import kotlin.collections.HashMap
 
 class EventsFragment : Fragment() {
 
     companion object {
-        const val IMAGE_PICKER_REQUEST_CODE = 1
+        const val PICK_IMAGE_REQUEST = 71
     }
 
     private var mPickedEventId = -1
+    private var mFirebaseStorage: FirebaseStorage? = null
+    private var mStorageReference: StorageReference? = null
+    private var filePath: Uri? = null
+
     private lateinit var mPrefs: SharedPreferences
-    private lateinit var mImageUploadRequestId: String
     private var mEventDetailsList = ArrayList<EventDetails>()
     private var listener: OnFragmentInteractionListener? = null
     var listAdapter: MyEventsRecyclerViewAdapter = MyEventsRecyclerViewAdapter(mEventDetailsList)
+    private lateinit var database: FirebaseDatabase
+    private lateinit var databaseReference: DatabaseReference
+
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
@@ -58,14 +82,21 @@ class EventsFragment : Fragment() {
             listener!!.setTitleTo("Events")
         }
         return inflater.inflate(R.layout.fragment_events, container, false)
+        //  view.upload_button.setOnClickListener{uploadImage()};
+
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
         events_swipe_refresh.isRefreshing = true
-        buildRecyclerView()
 
+        val uid = FirebaseAuth.getInstance().currentUser!!.uid
+        mFirebaseStorage = FirebaseStorage.getInstance()
+        mStorageReference = mFirebaseStorage!!.getReference(uid)
+
+        database = FirebaseDatabase.getInstance()
+        databaseReference = database.getReference("TASKS")
+        buildRecyclerView()
         listAdapter.setOnClickListener(object : MyEventsRecyclerViewAdapter.OnItemClickListener {
             override fun onItemClicked(position: Int) {
                 mPickedEventId = position + 1
@@ -76,11 +107,20 @@ class EventsFragment : Fragment() {
     }
 
     private fun updateEventsListCache() {
-        doAsync {
-            Paper.book().delete(Constants.EVENTS_CACHED_KEY)
-        }
-        mPrefs[Constants.EVENTS_CACHED_KEY] = Constants.EVENTS_CACHED_DEFAULT
-        getEventsList()
+//        doAsync {
+//            Paper.book().delete(Constants.EVENTS_CACHED_KEY)
+//        }
+//        mPrefs[Constants.EVENTS_CACHED_KEY] = Constants.EVENTS_CACHED_DEFAULT
+//        getEventsList()
+//        Handler().postDelayed(
+//                {
+//                    events_swipe_refresh.isRefreshing = false
+//                    // This method will be executed once the timer is over
+//                },
+//                1000 // value in milliseconds
+//        )
+        mEventDetailsList.clear()
+        buildRecyclerView()
     }
 
     private fun buildRecyclerView() {
@@ -92,144 +132,163 @@ class EventsFragment : Fragment() {
     }
 
     private fun getEventsList() {
-        var i = 0
-        if (isEventsCached()) {
-            doAsync {
-                mEventDetailsList = ArrayList(Paper.book()
-                        .read<ArrayList<EventDetails>>(Constants.EVENTS_CACHED_KEY))
-                uiThread {
-                    listAdapter.swapList(mEventDetailsList)
-                    listAdapter.notifyDataSetChanged()
-                    events_swipe_refresh.isRefreshing = false
-                }
-            }
-        } else {
-            mPrefs[Constants.EVENTS_CACHED_KEY] = "true"
-            AndroidNetworking.get(Constants.EVENTS_LIST_URL)
-                    .setTag("eventsListRequest")
-                    .build()
-                    .getAsJSONArray(object : JSONArrayRequestListener {
-                        override fun onResponse(response: JSONArray) {
-                            if (response.length() > 0) {
-                                mEventDetailsList.clear()
-                                while (response.length() > i) {
-                                    mEventDetailsList.add(createEventDetailsObject(response.getJSONObject(i++)))
-                                }
-                            }
-                            listAdapter.notifyDataSetChanged()
-                            events_swipe_refresh.isRefreshing = false
-                            doAsync {
-                                Paper.book().write(Constants.EVENTS_CACHED_KEY, mEventDetailsList)
-                            }
-                        }
+        databaseReference.addValueEventListener(object : ValueEventListener {
+            override fun onCancelled(p0: DatabaseError) {
 
-                        override fun onError(error: ANError) {
-                            Log.e("EventsFragment", error.errorBody)
-                            events_swipe_refresh.isRefreshing = false
-                            Toast.makeText(context, "Connection Broke :(", Toast.LENGTH_SHORT).show()
-                        }
-                    })
-        }
+            }
+
+            override fun onDataChange(p0: DataSnapshot) {
+                if(p0.exists()) {
+                    for (i in p0.children) {
+                        val task = i.getValue(EventDetails::class.java)
+                        mEventDetailsList.add(task!!)
+                    }
+                }
+                listAdapter.notifyDataSetChanged()
+                events_swipe_refresh.isRefreshing = false
+            }
+        })
+
+//        var i = 0
+//        if (isEventsCached()) {
+//            doAsync {
+//                mEventDetailsList = ArrayList(Paper.book()
+//                        .read<ArrayList<EventDetails>>(Constants.EVENTS_CACHED_KEY))
+//                uiThread {
+//                    listAdapter.swapList(mEventDetailsList)
+//                    listAdapter.notifyDataSetChanged()
+//                    events_swipe_refresh.isRefreshing = false
+//                }
+//            }
+//        } else {
+//            mPrefs[Constants.EVENTS_CACHED_KEY] = "true"
+//            AndroidNetworking.get(Constants.EVENTS_LIST_URL)
+//                    .setTag("eventsListRequest")
+//                    .build()
+//                    .getAsJSONArray(object : JSONArrayRequestListener {
+//                        override fun onResponse(response: JSONArray) {
+//                            if (response.length() > 0) {
+//                                mEventDetailsList.clear()
+//                                while (response.length() > i) {
+////                                    mEventDetailsList.add(createEventDetailsObject(response.getJSONObject(i++)))
+//                                }
+//                            }
+//                            listAdapter.notifyDataSetChanged()
+//                            events_swipe_refresh.isRefreshing = false
+//                            doAsync {
+//                                Paper.book().write(Constants.EVENTS_CACHED_KEY, mEventDetailsList)
+//                            }
+//                        }
+//
+//                        override fun onError(error: ANError) {
+//                            Log.e("EventsFragment", error.errorBody)
+//                            events_swipe_refresh.isRefreshing = false
+//                            Toast.makeText(context, "Connection Broke :(", Toast.LENGTH_SHORT).show()
+//                        }
+//                    })
+//        }
     }
 
     fun openImagePicker() {
-        val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.INTERNAL_CONTENT_URI)
-        startActivityForResult(intent, IMAGE_PICKER_REQUEST_CODE)
+        val intent = Intent()
+        intent.type = "image/*"
+        intent.action = Intent.ACTION_GET_CONTENT
+        startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE_REQUEST)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        if (requestCode == IMAGE_PICKER_REQUEST_CODE && resultCode == RESULT_OK && data != null) {
-            val title = getTitleFromUri(data.data)
-            uploadImageWithURI(compressImage(context, data.data, title), title)
-        }
-    }
-
-    private fun uploadImageWithURI(imageUri: Uri?, title: String) {
-
-        val progressDialog = ProgressDialog(context)
-        progressDialog.isIndeterminate = true
-        progressDialog.setMessage("Compressing Image...")
-        progressDialog.setCanceledOnTouchOutside(false)
-        progressDialog.show()
-
-        if (imageUri != null) {
-
-            val options = HashMap<String, String>()
-            options["public_id"] = "${UserDetails.userName}/$title"
-            options["tags"] = mPickedEventId.toString()
-
-            mImageUploadRequestId = MediaManager.get()
-                    .upload(imageUri).options(options)
-                    .unsigned("omajkdmo")
-                    .callback(object : UploadCallback {
-
-                        override fun onSuccess(requestId: String?, resultData: MutableMap<Any?, Any?>?) {
-                            Toast.makeText(activity!!.applicationContext, "Upload Successful :)",
-                                    Toast.LENGTH_SHORT).show()
-                            progressDialog.dismiss()
-                        }
-
-                        override fun onProgress(requestId: String?, bytes: Long, totalBytes: Long) {
-//                            val pro: Double = (bytes.toDouble() / totalBytes.toDouble()) * 100
-//                            progressDialog.progress = pro.toInt()
-//                            progressDialog.setMessage("${pro.toInt()}% Uploaded")
-                        }
-
-                        override fun onReschedule(requestId: String?, error: ErrorInfo?) {
-                            //Not Required
-                        }
-
-                        override fun onError(requestId: String?, error: ErrorInfo?) {
-                            Toast.makeText(context, "Error happened :(", Toast.LENGTH_SHORT).show()
-                            Log.e("Image Upload Error", error.toString())
-                        }
-
-                        override fun onStart(requestId: String?) {
-                            progressDialog.setMessage("Uploading...")
-                        }
-
-                    })
-                    .dispatch()
-        } else {
-            Toast.makeText(context, "Image no more on storage", Toast.LENGTH_SHORT).show()
-        }
-    }
-
-    private fun getTitleFromUri(uri: Uri): String {
-        var result = ""
-
-        if (uri.scheme == "content") {
-            val cursor = activity?.contentResolver?.query(uri, null, null,
-                    null, null)
-
-            cursor.use { cursor ->
-                if (cursor != null && cursor.moveToFirst()) {
-                    val id = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
-                    if (id != -1) {
-                        result = cursor.getString(id)
-                    }
-                }
+        super.onActivityResult(requestCode, resultCode, data)
+        if(requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK){
+            if(data == null){
+                return
+            }
+            filePath = data.data
+            try{
+                val bitmap = MediaStore.Images.Media.getBitmap(getActivity()?.getContentResolver(),filePath)
+                uploadImage()
+                // imageView.setImageBitmap(bitmap)
+            }catch (e: IOException){
+                e.printStackTrace()
             }
         }
-        if (result == "") {
-            result = uri.path
-            val cut = result.lastIndexOf('/')
+    }
+//    private fun addUploadRecordToDb(uri: String){
+//        val db = FirebaseFirestore.getInstance()
+//
+//        val data = HashMap<String, Any>()
+//        data["imageUrl"] = uri
+//
+//        db.collection("chat_room")
+//                .add(data)
+//                .addOnSuccessListener { documentReference ->
+//                    //Toast.makeText(activity, "Saved to DB", Toast.LENGTH_LONG).show()
+//                }
+//                .addOnFailureListener { e ->
+//                    // Toast.makeText(activity, "Error saving to DB", Toast.LENGTH_LONG).show()
+//                }
+//    }
 
-            if (cut != -1)
-                result = result.substring(cut + 1)
+    private fun uploadImage(){
+//        openImagePicker();
+        if(filePath != null){
+            val ref = mStorageReference?.child("/" + UUID.randomUUID().toString())
+            val uploadTask = ref?.putFile(filePath!!)
+
+            val urlTask = uploadTask?.continueWithTask(Continuation<UploadTask.TaskSnapshot, Task<Uri>> { task ->
+                if (!task.isSuccessful) {
+                    task.exception?.let {
+                        throw it
+                    }
+                }
+                return@Continuation ref.downloadUrl
+            })?.addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    val downloadUri = task.result
+//                    addUploadRecordToDb(downloadUri.toString())
+                } else {
+                    // Handle failures
+                }
+            }?.addOnFailureListener{
+
+            }
+        }else{
+            Toast.makeText(activity, "Please Upload an Image", Toast.LENGTH_SHORT).show()
         }
-        return result
     }
 
-    fun createEventDetailsObject(eventJSONObject: JSONObject): EventDetails {
 
-        return EventDetails(eventJSONObject.optInt(Constants.EVENT_ID_KEY),
-                eventJSONObject.optString(Constants.EVENT_NAME_KEY),
-                eventJSONObject.optString(Constants.EVENT_DESCRIPTION_KEY),
-                eventJSONObject.optInt(Constants.EVENT_PRIZE_KEY),
-                eventJSONObject.optInt(Constants.EVENT_POINTS_KEY),
-                eventJSONObject.optInt(Constants.EVENT_FEE_KEY))
-    }
+    /* private fun getTitleFromUri(uri: Uri): String {
+         var result = ""
+         if (uri.scheme == "content") {
+             val cursor = activity?.contentResolver?.query(uri, null, null,
+                     null, null)
+             cursor.use { cursor ->
+                 if (cursor != null && cursor.moveToFirst()) {
+                     val id = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+                     if (id != -1) {
+                         result = cursor.getString(id)
+                     }
+                 }
+             }
+         }
+         if (result == "") {
+             result = uri.path
+             val cut = result.lastIndexOf('/')
+             if (cut != -1)
+                 result = result.substring(cut + 1)
+         }
+         return result
+     }*/
+
+//    fun createEventDetailsObject(eventJSONObject: JSONObject): EventDetails {
+//
+//        return EventDetails(eventJSONObject.optInt(Constants.EVENT_ID_KEY),
+//                eventJSONObject.optString(Constants.EVENT_NAME_KEY),
+//                eventJSONObject.optString(Constants.EVENT_DESCRIPTION_KEY),
+//                eventJSONObject.optInt(Constants.EVENT_PRIZE_KEY),
+//                eventJSONObject.optInt(Constants.EVENT_POINTS_KEY),
+//                eventJSONObject.optInt(Constants.EVENT_FEE_KEY))
+//    }
 
     private fun isEventsCached(): Boolean {
         return when(mPrefs[Constants.EVENTS_CACHED_KEY, Constants.EVENTS_CACHED_DEFAULT]) {

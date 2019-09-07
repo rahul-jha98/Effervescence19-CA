@@ -7,24 +7,37 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import com.androidnetworking.AndroidNetworking
 import com.androidnetworking.error.ANError
 import com.androidnetworking.interfaces.JSONObjectRequestListener
+import com.firebase.ui.auth.AuthUI
+import com.google.firebase.FirebaseApp
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
 import kotlinx.android.synthetic.main.fragment_home.*
+import kotlinx.android.synthetic.main.fragment_leader_board.*
+import kotlinx.android.synthetic.main.list_item_leaderboard.*
 
 import org.effervescence.app19.ca.R
 import org.effervescence.app19.ca.listeners.OnFragmentInteractionListener
+import org.effervescence.app19.ca.models.LeaderbooardEntry
 import org.effervescence.app19.ca.utilities.Constants
 import org.effervescence.app19.ca.utilities.MyPreferences
 import org.effervescence.app19.ca.utilities.MyPreferences.get
 import org.effervescence.app19.ca.utilities.MyPreferences.set
 import org.effervescence.app19.ca.utilities.UserDetails
+import org.effervescence.app19.ca.utilities.UserDetails.rank
 import org.jetbrains.anko.doAsync
 import org.json.JSONObject
 
 
 class HomeFragment : Fragment() {
 
+    val list = ArrayList<LeaderbooardEntry>()
     private var listener: OnFragmentInteractionListener? = null
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
@@ -37,36 +50,46 @@ class HomeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        displayDetails()
+        val displayName = FirebaseAuth.getInstance().currentUser!!.displayName
 
-        if (UserDetails.isFirstLaunch) {
-            loadUserDetails()
-        } else {
-            displayReportCard()
-        }
+        displayDetails(displayName!!)
+        displayReportCard()
+
+//        if (UserDetails.isFirstLaunch) {
+////            loadUserDetails()
+//        } else {
+//        }
+
 
         shareAppCardView.setOnClickListener {
             val referralCode = UserDetails.referralCode
             val sendIntent: Intent = Intent().apply {
                 type = "text/plain"
                 action = Intent.ACTION_SEND
-                putExtra(Intent.EXTRA_TEXT, "Hey, use my referral code \"$referralCode\" " +
-                        "while registering for Effervescence'18 CA app to get extra 10 points. Download now: ")
+                putExtra(Intent.EXTRA_TEXT, "Hey, check out the Effervescence '19 CA App")
             }
             startActivity(sendIntent)
         }
     }
 
-    private fun displayDetails() {
-        userNameTextView.text = UserDetails.userName
-        greetingsTextView.text = "Hey, ${UserDetails.Name}"
-        collegeNameTextView.text = "Glad to have our campus ambassador in ${UserDetails.collegeName} :)"
+    private fun displayDetails(displayName: String) {
+//        userNameTextView.text = UserDetails.userName
+        greetingsTextView.text = ("Hey, " + displayName)
+        collegeNameTextView.text = "Glad to have you as our campus ambassador :)"
     }
 
     private fun displayReportCard() {
-        pointsTextView?.text = "Points: ${UserDetails.points}"
+        pointsTextViewHome?.text = "Points: ${UserDetails.points}"
 
-        val rank = UserDetails.rank.toString()
+        val id = FirebaseAuth.getInstance().currentUser!!.uid
+        var position = list.size
+        for (i in list) {
+            position++
+            if (i.uid == id) {
+                break
+            }
+        }
+        val rank = position.toString()
         rank_text_view?.textSize = when (rank.length) {
             4 -> 50f
             3 -> 70f
@@ -106,7 +129,7 @@ class HomeFragment : Fragment() {
                             UserDetails.facebookId = prefs[Constants.FB_ID_KEY, Constants.FB_ID_DEFAULT]
                             UserDetails.referralCode = prefs[Constants.REFERRAL_KEY, Constants.REFERRAL_DEFAULT]
 
-                            displayDetails()
+//                            displayDetails()
                         }
 
                         UserDetails.isFirstLaunch = false

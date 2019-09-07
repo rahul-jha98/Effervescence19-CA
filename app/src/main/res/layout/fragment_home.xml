@@ -36,12 +36,12 @@
                     android:layout_weight="1"
                     android:gravity="center_vertical"
                     android:padding="8dp"
-                    android:text="username"
+                    android:text=""
                     android:textColor="@color/black"
                     android:textStyle="bold" />
 
                 <TextView
-                    android:id="@+id/pointsTextView"
+                    android:id="@+id/pointsTextViewHome"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="8sp"
@@ -205,7 +205,7 @@
                         android:layout_marginStart="8dp"
                         android:layout_weight="1"
                         android:fontFamily="sans-serif-light"
-                        android:text="Refer the Campus Ambassadors app to your friends\n\nFor every friend that registers with your referral you get 10 points" />
+                        android:text="Refer the Campus Ambassadors app to your friends.\n\nLet them know about the Campus Ambassador Program!" />
 
                     <ImageView
                         android:id="@+id/imageView9"
@@ -253,7 +253,7 @@
             android:layout_marginBottom="8dp"
             android:layout_marginTop="8dp"
             android:fontFamily="sans-serif-condensed"
-            android:text="© Effervescence 2018"
+            android:text="© Effervescence 2019"
             android:textColor="@color/black"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
