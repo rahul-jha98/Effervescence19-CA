@@ -24,6 +24,7 @@ import androidx.annotation.NonNull
 import com.androidnetworking.AndroidNetworking
 import com.androidnetworking.error.ANError
 import com.androidnetworking.interfaces.JSONArrayRequestListener
+import com.cloudinary.Url
 import com.cloudinary.android.MediaManager
 import com.cloudinary.android.callback.ErrorInfo
 import com.cloudinary.android.callback.UploadCallback
@@ -89,7 +90,6 @@ class EventsFragment : Fragment() {
             listener!!.setTitleTo("Events")
         }
         return inflater.inflate(R.layout.fragment_events, container, false)
-        //  view.upload_button.setOnClickListener{uploadImage()};
 
     }
 
@@ -106,10 +106,19 @@ class EventsFragment : Fragment() {
         subsDatabaseReference = database.getReference("Subs")
 
         buildRecyclerView()
+
         listAdapter.setOnClickListener(object : MyEventsRecyclerViewAdapter.OnItemClickListener {
             override fun onItemClicked(position: Int) {
+
                 mPickedEventId = position + 1
-                openImagePicker()
+
+          event_description.setOnClickListener{
+              goToUrl(view.event_description.text.toString());
+          }
+                upload_button.setOnClickListener{
+                    openImagePicker()
+                }
+                //openImagePicker()
             }
         })
         events_swipe_refresh.setOnRefreshListener { updateEventsListCache() }
@@ -238,13 +247,15 @@ class EventsFragment : Fragment() {
 //                    // Toast.makeText(activity, "Error saving to DB", Toast.LENGTH_LONG).show()
 //                }
 //    }
+    private fun goToUrl( urls: String){
+    val openURL = Intent(android.content.Intent.ACTION_VIEW)
+    openURL.data = Uri.parse(urls)
+    startActivity(openURL)
+}
 
     private fun uploadImage(){
 //        openImagePicker();
-        val dialogBuilder = AlertDialog.Builder(context)
-        val alert = dialogBuilder.create()
-        // set title for alert dialog box
-        alert.setTitle("Image Upload")
+
         // show alert dialog
         if(filePath != null){
             val timeStamp = System.currentTimeMillis().toString()
@@ -295,8 +306,8 @@ class EventsFragment : Fragment() {
             })?.addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     val downloadUri = task.result
-                    dialogBuilder.setMessage("Uploading")
-                    alert.show()
+                    Toast.makeText(context,"Image Uploaded",Toast.LENGTH_SHORT).show()
+
 
 //                    addUploadRecordToDb(downloadUri.toString())
                 } else {
