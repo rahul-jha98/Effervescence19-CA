@@ -1,5 +1,6 @@
 package org.effervescence.app19.ca.fragments
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -34,15 +35,20 @@ class ContactsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        sashank_fab.setOnClickListener{ callNumber("+917275253323") }
         akshit_fab.setOnClickListener { callNumber("+918872800037") }
         rahul_fab.setOnClickListener { callNumber("+918452800051") }
-        nairit_fab.setOnClickListener { callNumber("+917607020660") }
+        kartik_fab.setOnClickListener { callNumber("+917081564408") }
+        anurag_fab.setOnClickListener { callNumber("+918956248701") }
+
+        mohit_fab.setOnClickListener { callNumber("+918385990861") }
         jai_fab.setOnClickListener { callNumber("+919560503984") }
-        ronak_fab.setOnClickListener { callNumber("+919785158100") }
+        uddept_fab.setOnClickListener { callNumber("+918294218053") }
         kajal_fab.setOnClickListener { callNumber("+918755381662") }
+        keshab_fab.setOnClickListener{callNumber(("+919160000000"))}
+        Tashruth_fab.setOnClickListener{callNumber(("+917893723232"))}
     }
 
+    @SuppressLint("WrongConstant")
     private fun callNumber(number: String) {
 
         if (checkSelfPermission(context!!, android.Manifest.permission.CALL_PHONE)

@@ -24,6 +24,7 @@ class FirebaseLoginActivity : AppCompatActivity() {
     private var mFirebaseAuth = FirebaseAuth.getInstance()
     private lateinit var mAuthStateListener: FirebaseAuth.AuthStateListener
     private val RC_SIGN_IN = 1
+    private val RC_SIGN_OUT = 7
     private lateinit var database: FirebaseDatabase
     private lateinit var databaseReference: DatabaseReference
 
@@ -63,9 +64,18 @@ class FirebaseLoginActivity : AppCompatActivity() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
-        if (requestCode == RC_SIGN_IN && resultCode == Activity.RESULT_CANCELED) {
+        /*if (requestCode == RC_SIGN_IN && resultCode == Activity.RESULT_CANCELED) {
             finish()
+        }*/
+        if (requestCode == RC_SIGN_IN) {
+            if (resultCode == RESULT_OK) {
+                Toast.makeText(this, "Signed in!", Toast.LENGTH_SHORT).show();
+            } else if (resultCode == RESULT_CANCELED) {
+                Toast.makeText(this, "Sign in canceled", Toast.LENGTH_SHORT).show();
+                finish();
+            }
         }
+
     }
 
     override fun onResumeFragments() {

@@ -66,27 +66,34 @@ class HomeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         prefs = MyPreferences.customPrefs(this, Constants.MY_SHARED_PREFERENCE)
     }
 
-    override fun onBackPressed() {
-        when {
-            drawer_layout.isDrawerOpen(GravityCompat.START) -> drawer_layout.closeDrawer(GravityCompat.START)
-            currentPage != 1 -> {
-                fragmentClass = HomeFragment::class.java
-                try {
-                    fragment = fragmentClass!!.newInstance() as Fragment
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                }
-                nav_view.setCheckedItem(R.id.nav_home)
-                supportFragmentManager.beginTransaction()
-                        .setCustomAnimations(R.anim.push_right_out, R.anim.push_right_in)
-                        .replace(R.id.mainContentSpace, fragment!!)
-                        .commit()
+        override fun onBackPressed() {
+            when {
+                drawer_layout.isDrawerOpen(GravityCompat.START) -> drawer_layout.closeDrawer(GravityCompat.START)
+                currentPage != 1 -> {
+                    fragmentClass = HomeFragment::class.java
+                    try {
+                        fragment = fragmentClass!!.newInstance() as Fragment
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
+                    nav_view.setCheckedItem(R.id.nav_home)
+                    supportFragmentManager.beginTransaction()
+                            .setCustomAnimations(R.anim.push_right_out, R.anim.push_right_in)
+                            .replace(R.id.mainContentSpace, fragment!!)
+                            .commit()
 
-                currentPage = 1
+                    currentPage = 1
+                }
+                else -> {
+                    val intent = Intent(Intent.ACTION_MAIN);
+                    intent.addCategory(Intent.CATEGORY_HOME);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                    startActivity(intent);
+                    finish();
+                    System.exit(0);
+                }
             }
-            else -> super.onBackPressed()
         }
-    }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         // Inflate the menu; this adds items to the action bar if it is present.
