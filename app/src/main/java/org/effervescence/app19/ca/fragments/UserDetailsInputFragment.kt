@@ -106,7 +106,6 @@ class UserDetailsInputFragment : Fragment() {
                                 referralCodeEditTextViewLayout.error = "Enter correct Referral Code"
                             }
                         }
-                        Log.e("UserDetailsInput", error.errorBody)
                         progressDialog.dismiss()
                     }
                 })

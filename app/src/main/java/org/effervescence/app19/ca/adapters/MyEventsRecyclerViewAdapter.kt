@@ -11,7 +11,6 @@ import kotlinx.android.synthetic.main.fragment_events_list_item.view.*
 import org.effervescence.app19.ca.models.EventDetails
 import androidx.core.content.ContextCompat.startActivity
 import android.R
-import android.util.Log
 import android.widget.Toast
 import org.effervescence.app19.ca.activities.HomeActivity
 

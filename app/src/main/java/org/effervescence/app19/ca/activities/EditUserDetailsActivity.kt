@@ -92,7 +92,6 @@ class EditUserDetailsActivity : AppCompatActivity() {
                                 fbIdLinkEditTextViewLayout.error = "The profile entered is incorrect"
                             }
                         }
-                        Log.e("UserDetailsInput", error.errorBody)
                         progressDialog.dismiss()
                         Toast.makeText(this@EditUserDetailsActivity, error.errorBody, Toast.LENGTH_SHORT).show()
                     }

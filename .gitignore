@@ -1,4 +1,4 @@
-*.iml
+*.imlClean up your project and make sure it conforms to the directory structure described in Android Projects. Leaving stray or orphaned files in your project can prevent your application from compiling and cause your application to behave unpredictably. At a minimum you should do the following cleanup tasks:
 .gradle
 /local.properties
 /.idea/caches
