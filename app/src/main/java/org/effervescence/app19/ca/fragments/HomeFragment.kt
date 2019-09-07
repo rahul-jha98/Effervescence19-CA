@@ -37,7 +37,7 @@ import org.json.JSONObject
 
 class HomeFragment : Fragment() {
 
-    val list = ArrayList<LeaderbooardEntry>()
+    private val list = ArrayList<LeaderbooardEntry>()
     private var listener: OnFragmentInteractionListener? = null
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
@@ -52,8 +52,27 @@ class HomeFragment : Fragment() {
 
         val displayName = FirebaseAuth.getInstance().currentUser!!.displayName
 
+        val databaseReference = FirebaseDatabase.getInstance().getReference("Users")
+        databaseReference.addValueEventListener(object : ValueEventListener {
+            override fun onCancelled(p0: DatabaseError) {
+            }
+
+            override fun onDataChange(p0: DataSnapshot) {
+//                Toast.makeText(context, "Worked", Toast.LENGTH_LONG).show()
+
+                if (p0.exists()) {
+                    for (i in p0.children) {
+                        val user = i.getValue(LeaderbooardEntry::class.java)
+                        list.add(user!!)
+                    }
+                }
+
+                list.sortByDescending { it.score }
+                displayReportCard(list)
+            }
+        })
+
         displayDetails(displayName!!)
-        displayReportCard()
 
 //        if (UserDetails.isFirstLaunch) {
 ////            loadUserDetails()
@@ -78,10 +97,10 @@ class HomeFragment : Fragment() {
         collegeNameTextView.text = "Glad to have you as our campus ambassador :)"
     }
 
-    private fun displayReportCard() {
+    private fun displayReportCard(list: ArrayList<LeaderbooardEntry>) {
 
         val id = FirebaseAuth.getInstance().currentUser!!.uid
-        var position = list.size
+        var position = 0
         for (i in list) {
             position++
             if (i.uid == id) {
@@ -132,7 +151,7 @@ class HomeFragment : Fragment() {
                         }
 
                         UserDetails.isFirstLaunch = false
-                        displayReportCard()
+//                        displayReportCard()
                     }
 
                     override fun onError(error: ANError) {
