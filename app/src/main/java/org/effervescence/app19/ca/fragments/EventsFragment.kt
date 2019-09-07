@@ -28,8 +28,9 @@ import com.cloudinary.android.callback.ErrorInfo
 import com.cloudinary.android.callback.UploadCallback
 import com.google.android.gms.tasks.Continuation
 import com.google.android.gms.tasks.Task
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
-import com.google.firebase.firestore.FirebaseFirestore
+//import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
 import com.google.firebase.storage.UploadTask
@@ -67,7 +68,6 @@ class EventsFragment : Fragment() {
     private var filePath: Uri? = null
 
     private lateinit var mPrefs: SharedPreferences
-    private lateinit var mImageUploadRequestId: String
     private var mEventDetailsList = ArrayList<EventDetails>()
     private var listener: OnFragmentInteractionListener? = null
     var listAdapter: MyEventsRecyclerViewAdapter = MyEventsRecyclerViewAdapter(mEventDetailsList)
@@ -82,7 +82,7 @@ class EventsFragment : Fragment() {
             listener!!.setTitleTo("Events")
         }
         return inflater.inflate(R.layout.fragment_events, container, false)
-     //  view.upload_button.setOnClickListener{uploadImage()};
+        //  view.upload_button.setOnClickListener{uploadImage()};
 
     }
 
@@ -90,8 +90,9 @@ class EventsFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         events_swipe_refresh.isRefreshing = true
 
+        val uid = FirebaseAuth.getInstance().currentUser!!.uid
         mFirebaseStorage = FirebaseStorage.getInstance()
-        mStorageReference = mFirebaseStorage!!.getReference().child("chat_photos");
+        mStorageReference = mFirebaseStorage!!.getReference(uid)
 
         database = FirebaseDatabase.getInstance()
         databaseReference = database.getReference("TASKS")
@@ -196,41 +197,41 @@ class EventsFragment : Fragment() {
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if(requestCode == PICK_IMAGE_REQUEST && resultCode == Activity.RESULT_OK){
+        super.onActivityResult(requestCode, resultCode, data)
+        if(requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK){
             if(data == null){
-                return;
+                return
             }
-            filePath = data.data;
+            filePath = data.data
             try{
-                val bitmap = MediaStore.Images.Media.getBitmap(getActivity()?.getContentResolver(),filePath);
+                val bitmap = MediaStore.Images.Media.getBitmap(getActivity()?.getContentResolver(),filePath)
                 uploadImage()
-               // imageView.setImageBitmap(bitmap)
+                // imageView.setImageBitmap(bitmap)
             }catch (e: IOException){
-                e.printStackTrace();
+                e.printStackTrace()
             }
         }
     }
-    private fun addUploadRecordToDb(uri: String){
-        val db = FirebaseFirestore.getInstance()
-
-        val data = HashMap<String, Any>()
-        data["imageUrl"] = uri
-
-        db.collection("chat_room")
-                .add(data)
-                .addOnSuccessListener { documentReference ->
-                    //Toast.makeText(activity, "Saved to DB", Toast.LENGTH_LONG).show()
-                }
-                .addOnFailureListener { e ->
-                   // Toast.makeText(activity, "Error saving to DB", Toast.LENGTH_LONG).show()
-                }
-    }
+//    private fun addUploadRecordToDb(uri: String){
+//        val db = FirebaseFirestore.getInstance()
+//
+//        val data = HashMap<String, Any>()
+//        data["imageUrl"] = uri
+//
+//        db.collection("chat_room")
+//                .add(data)
+//                .addOnSuccessListener { documentReference ->
+//                    //Toast.makeText(activity, "Saved to DB", Toast.LENGTH_LONG).show()
+//                }
+//                .addOnFailureListener { e ->
+//                    // Toast.makeText(activity, "Error saving to DB", Toast.LENGTH_LONG).show()
+//                }
+//    }
 
     private fun uploadImage(){
 //        openImagePicker();
         if(filePath != null){
-            val ref = mStorageReference?.child("chat_room/" + UUID.randomUUID().toString())
+            val ref = mStorageReference?.child("/" + UUID.randomUUID().toString())
             val uploadTask = ref?.putFile(filePath!!)
 
             val urlTask = uploadTask?.continueWithTask(Continuation<UploadTask.TaskSnapshot, Task<Uri>> { task ->
@@ -243,7 +244,7 @@ class EventsFragment : Fragment() {
             })?.addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     val downloadUri = task.result
-                    addUploadRecordToDb(downloadUri.toString())
+//                    addUploadRecordToDb(downloadUri.toString())
                 } else {
                     // Handle failures
                 }
@@ -251,36 +252,33 @@ class EventsFragment : Fragment() {
 
             }
         }else{
-           // Toast.makeText(activity, "Please Upload an Image", Toast.LENGTH_SHORT).show()
+            Toast.makeText(activity, "Please Upload an Image", Toast.LENGTH_SHORT).show()
         }
     }
 
 
-   /* private fun getTitleFromUri(uri: Uri): String {
-        var result = ""
-
-        if (uri.scheme == "content") {
-            val cursor = activity?.contentResolver?.query(uri, null, null,
-                    null, null)
-
-            cursor.use { cursor ->
-                if (cursor != null && cursor.moveToFirst()) {
-                    val id = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
-                    if (id != -1) {
-                        result = cursor.getString(id)
-                    }
-                }
-            }
-        }
-        if (result == "") {
-            result = uri.path
-            val cut = result.lastIndexOf('/')
-
-            if (cut != -1)
-                result = result.substring(cut + 1)
-        }
-        return result
-    }*/
+    /* private fun getTitleFromUri(uri: Uri): String {
+         var result = ""
+         if (uri.scheme == "content") {
+             val cursor = activity?.contentResolver?.query(uri, null, null,
+                     null, null)
+             cursor.use { cursor ->
+                 if (cursor != null && cursor.moveToFirst()) {
+                     val id = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+                     if (id != -1) {
+                         result = cursor.getString(id)
+                     }
+                 }
+             }
+         }
+         if (result == "") {
+             result = uri.path
+             val cut = result.lastIndexOf('/')
+             if (cut != -1)
+                 result = result.substring(cut + 1)
+         }
+         return result
+     }*/
 
 //    fun createEventDetailsObject(eventJSONObject: JSONObject): EventDetails {
 //

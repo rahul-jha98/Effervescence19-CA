@@ -13,10 +13,12 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.ContextCompat.startActivity
 import com.firebase.ui.auth.AuthUI
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.database.DatabaseReference
-import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.*
 import org.effervescence.app19.ca.R
+import org.effervescence.app19.ca.models.User
 import org.jetbrains.anko.startActivity
+import java.io.File
+import javax.xml.transform.Templates
 
 class FirebaseLoginActivity : AppCompatActivity() {
     private var mFirebaseAuth = FirebaseAuth.getInstance()
@@ -39,21 +41,21 @@ class FirebaseLoginActivity : AppCompatActivity() {
         mAuthStateListener = FirebaseAuth.AuthStateListener {
             val user = mFirebaseAuth.currentUser
             if (user != null) {
-                //Already signed in
+                onSignedInInitialize(user.uid, user.displayName!!)
                 startActivity<HomeActivity>()
             } else {
                 startActivityForResult(
-                    AuthUI.getInstance()
-                            .createSignInIntentBuilder()
-                            .setIsSmartLockEnabled(false)
-                            .setAvailableProviders(providers)
-                            .setLogo(R.drawable.logo)
-                            .setTheme(R.style.FirebaseLoginTheme)
-                            .build(),
-                    RC_SIGN_IN)
+                        AuthUI.getInstance()
+                                .createSignInIntentBuilder()
+                                .setIsSmartLockEnabled(false)
+                                .setAvailableProviders(providers)
+                                .setLogo(R.drawable.logo)
+                                .setTheme(R.style.FirebaseLoginTheme)
+                                .build(),
+                        RC_SIGN_IN)
 
-                val id = databaseReference.push().key
-                Toast.makeText(applicationContext, "Toast", Toast.LENGTH_LONG).show()
+//                val id = databaseReference.push().key
+//                Toast.makeText(applicationContext, "Toast", Toast.LENGTH_LONG).show()
             }
         }
     }
@@ -77,6 +79,21 @@ class FirebaseLoginActivity : AppCompatActivity() {
     override fun onPause() {
         super.onPause()
         mFirebaseAuth.removeAuthStateListener(mAuthStateListener)
+    }
+
+    fun onSignedInInitialize(uid: String, displayName: String) {
+        databaseReference.addValueEventListener(object : ValueEventListener{
+            override fun onCancelled(p0: DatabaseError) {
+            }
+
+            override fun onDataChange(p0: DataSnapshot) {
+                if (!p0.hasChild(uid)) {
+                    Toast.makeText(applicationContext, "Method called", Toast.LENGTH_LONG).show()
+                    val user = User(name = displayName, score = 0, uid = uid, uploads = 0)
+                    databaseReference.child(uid).setValue(user)
+                }
+            }
+        })
     }
 
 //    fun checkPermission() {
