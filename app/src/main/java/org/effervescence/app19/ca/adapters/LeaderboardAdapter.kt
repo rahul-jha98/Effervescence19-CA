@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import com.google.firebase.auth.FirebaseAuth
 import org.effervescence.app19.ca.R
 import org.effervescence.app19.ca.models.LeaderbooardEntry
 
@@ -34,7 +35,7 @@ class LeaderboardAdapter(val context: Context) : RecyclerView.Adapter<Leaderboar
     inner class LeaderBoardViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView){
         val nameTextView = itemView.findViewById<TextView>(R.id.helloText)
         val srNoTextView = itemView.findViewById<TextView>(R.id.srNoTextView)
-//        val emailTextView = itemView.findViewById<TextView>(R.id.emailTextView)
+        //        val emailTextView = itemView.findViewById<TextView>(R.id.emailTextView)
         val pointsTextView = itemView.findViewById<TextView>(R.id.pointsTextView)
         val separator = itemView.findViewById<View>(R.id.separator)
 
@@ -43,6 +44,8 @@ class LeaderboardAdapter(val context: Context) : RecyclerView.Adapter<Leaderboar
             srNoTextView.text = "$position."
             pointsTextView.text = "${entry.score}"
 //            emailTextView.text = entry.collegeName
+            val id = FirebaseAuth.getInstance().currentUser!!.uid
+            if (id == entry.uid) entry.isCurrentUser = true
             if(entry.isCurrentUser){
                 itemView.setBackgroundResource(R.color.gray1)
             } else {

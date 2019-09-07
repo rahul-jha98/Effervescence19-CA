@@ -12,6 +12,8 @@ import android.view.Menu
 import android.view.MenuItem
 import android.widget.TextView
 import com.cloudinary.android.MediaManager
+import com.firebase.ui.auth.AuthUI
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.android.synthetic.main.activity_home.*
 import kotlinx.android.synthetic.main.app_bar_home.*
 import org.effervescence.app19.ca.R
@@ -30,6 +32,7 @@ class HomeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private var fragmentClass: Class<*>? = null
     private var currentPage = 1
     lateinit var prefs: SharedPreferences
+    private lateinit var firebaseAuth : FirebaseAuth
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,8 +44,12 @@ class HomeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         drawer_layout.addDrawerListener(toggle)
         toggle.syncState()
 
+        firebaseAuth = FirebaseAuth.getInstance()
+        val currentUser = firebaseAuth.currentUser
+        val photoUrl = currentUser!!.photoUrl
+
         nav_view.setNavigationItemSelectedListener(this)
-        nav_view.getHeaderView(0).findViewById<TextView>(R.id.userNameNav).text = UserDetails.Name
+        nav_view.getHeaderView(0).findViewById<TextView>(R.id.userNameNav).text = currentUser!!.displayName
 
         fragmentClass = HomeFragment::class.java
         try {
@@ -90,13 +97,10 @@ class HomeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.logout -> {
-                resetSharedPreference()
-                finish()
+                startActivity<FirebaseLoginActivity>()
+                AuthUI.getInstance().signOut(this)
                 return true
             }
-            R.id.change_password -> changePassword()
-
-            R.id.edit_details -> startActivity(Intent(this, EditUserDetailsActivity::class.java))
         }
         return super.onOptionsItemSelected(item)
     }
@@ -142,17 +146,6 @@ class HomeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             R.id.nav_about -> {
                 selectedPage = 4
                 fragmentClass = AboutFragment::class.java
-            }
-
-            R.id.nav_send -> {
-                val referralCode = UserDetails.referralCode
-                val sendIntent: Intent = Intent().apply {
-                    type = "text/plain"
-                    action = Intent.ACTION_SEND
-                    putExtra(Intent.EXTRA_TEXT, "Hey, use my referral code $referralCode " +
-                            "while registering for Effervescence'18 CA app to get extra 10 points. Download now: ")
-                }
-                startActivity(sendIntent)
             }
 
             R.id.nav_info -> {
