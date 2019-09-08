@@ -21,6 +21,7 @@ import android.view.ViewGroup
 import android.view.animation.AnimationUtils
 import android.widget.Toast
 import androidx.annotation.NonNull
+import androidx.core.content.ContextCompat.startActivity
 import com.androidnetworking.AndroidNetworking
 import com.androidnetworking.error.ANError
 import com.androidnetworking.interfaces.JSONArrayRequestListener
@@ -72,7 +73,8 @@ class EventsFragment : Fragment() {
     private var mPickedEventId = -1
     private var mFirebaseStorage: FirebaseStorage? = null
     private var mStorageReference: StorageReference? = null
-    private var filePath: Uri? = null
+    lateinit var filePath : Uri
+
 
     private lateinit var mPrefs: SharedPreferences
     private var mEventDetailsList = ArrayList<EventDetails>()
@@ -110,15 +112,14 @@ class EventsFragment : Fragment() {
 
         listAdapter.setOnClickListener(object : MyEventsRecyclerViewAdapter.OnItemClickListener {
             override fun onItemClicked(position: Int) {
+                event_description.setOnClickListener {
+                    goToUrl(view.event_description.text.toString());
 
-                mPickedEventId = position + 1
-
-          event_description.setOnClickListener{
-              goToUrl(view.event_description.text.toString());
-          }
+                }
                 upload_button.setOnClickListener{
                     openImagePicker()
                 }
+                mPickedEventId = position + 1
                 //openImagePicker()
             }
         })
@@ -126,18 +127,7 @@ class EventsFragment : Fragment() {
     }
 
     private fun updateEventsListCache() {
-//        doAsync {
-//            Paper.book().delete(Constants.EVENTS_CACHED_KEY)
-//        }
-//        mPrefs[Constants.EVENTS_CACHED_KEY] = Constants.EVENTS_CACHED_DEFAULT
-//        getEventsList()
-//        Handler().postDelayed(
-//                {
-//                    events_swipe_refresh.isRefreshing = false
-//                    // This method will be executed once the timer is over
-//                },
-//                1000 // value in milliseconds
-//        )
+
         mEventDetailsList.clear()
         buildRecyclerView()
     }
@@ -169,44 +159,6 @@ class EventsFragment : Fragment() {
             }
         })
 
-//        var i = 0
-//        if (isEventsCached()) {
-//            doAsync {
-//                mEventDetailsList = ArrayList(Paper.book()
-//                        .read<ArrayList<EventDetails>>(Constants.EVENTS_CACHED_KEY))
-//                uiThread {
-//                    listAdapter.swapList(mEventDetailsList)
-//                    listAdapter.notifyDataSetChanged()
-//                    events_swipe_refresh.isRefreshing = false
-//                }
-//            }
-//        } else {
-//            mPrefs[Constants.EVENTS_CACHED_KEY] = "true"
-//            AndroidNetworking.get(Constants.EVENTS_LIST_URL)
-//                    .setTag("eventsListRequest")
-//                    .build()
-//                    .getAsJSONArray(object : JSONArrayRequestListener {
-//                        override fun onResponse(response: JSONArray) {
-//                            if (response.length() > 0) {
-//                                mEventDetailsList.clear()
-//                                while (response.length() > i) {
-////                                    mEventDetailsList.add(createEventDetailsObject(response.getJSONObject(i++)))
-//                                }
-//                            }
-//                            listAdapter.notifyDataSetChanged()
-//                            events_swipe_refresh.isRefreshing = false
-//                            doAsync {
-//                                Paper.book().write(Constants.EVENTS_CACHED_KEY, mEventDetailsList)
-//                            }
-//                        }
-//
-//                        override fun onError(error: ANError) {
-//                            Log.e("EventsFragment", error.errorBody)
-//                            events_swipe_refresh.isRefreshing = false
-//                            Toast.makeText(context, "Connection Broke :(", Toast.LENGTH_SHORT).show()
-//                        }
-//                    })
-//        }
     }
 
     fun openImagePicker() {
@@ -222,7 +174,7 @@ class EventsFragment : Fragment() {
             if(data == null){
                 return
             }
-            filePath = data.data
+            filePath = data!!.data
             try{
                 val bitmap = MediaStore.Images.Media.getBitmap(getActivity()?.getContentResolver(),filePath)
                 uploadImage()
@@ -232,21 +184,7 @@ class EventsFragment : Fragment() {
             }
         }
     }
-//    private fun addUploadRecordToDb(uri: String){
-//        val db = FirebaseFirestore.getInstance()
-//
-//        val data = HashMap<String, Any>()
-//        data["imageUrl"] = uri
-//
-//        db.collection("chat_room")
-//                .add(data)
-//                .addOnSuccessListener { documentReference ->
-//                    //Toast.makeText(activity, "Saved to DB", Toast.LENGTH_LONG).show()
-//                }
-//                .addOnFailureListener { e ->
-//                    // Toast.makeText(activity, "Error saving to DB", Toast.LENGTH_LONG).show()
-//                }
-//    }
+
     private fun goToUrl( urls: String){
     val openURL = Intent(android.content.Intent.ACTION_VIEW)
     openURL.data = Uri.parse(urls)
@@ -254,76 +192,69 @@ class EventsFragment : Fragment() {
 }
 
     private fun uploadImage(){
-//        openImagePicker();
-
-        // show alert dialog
-        if(filePath != null){
-            val timeStamp = System.currentTimeMillis().toString()
-            val ref = mStorageReference?.child("/" + timeStamp)
-            val uploadTask = ref?.putFile(filePath!!)!!
-
-            val taskId = mEventDetailsList[mPickedEventId-1].uid
-            val key = subsDatabaseReference.push().key
-            val uid = FirebaseAuth.getInstance().currentUser!!.uid
-
-            val sub = SubmissionDetalis(uid + "%2F" + timeStamp, taskId + uid)
-
-            subsDatabaseReference.child(key!!).setValue(sub).addOnCompleteListener {
-                Toast.makeText(context, "Image uploaded successfully!", Toast.LENGTH_LONG).show()
+            val progress = ProgressDialog(context).apply {
+                setTitle("Uploading Picture....")
+                setCancelable(false)
+                setCanceledOnTouchOutside(false)
+                show()
             }
 
-            val taskPoints = mEventDetailsList[mPickedEventId-1].points
+            val data = FirebaseStorage.getInstance()
+            var value = 0.0
+            var storage = data.getReference(FirebaseAuth.getInstance().currentUser?.uid.toString()).child(System.currentTimeMillis().toString()).putFile(filePath)
+                    .addOnProgressListener { taskSnapshot ->
+                        value = (100.0 * taskSnapshot.bytesTransferred) / taskSnapshot.totalByteCount
+                        Log.v("value","value=="+value)
+                        progress.setMessage("Uploaded.. " + value.toInt() + "%")
+                    }
+                    .addOnSuccessListener { taskSnapshot -> progress.dismiss()
+                        Toast.makeText(context,"Image Uploaded",Toast.LENGTH_SHORT).show()
+                        val taskId = mEventDetailsList[mPickedEventId-1].uid
+                        val key = subsDatabaseReference.push().key
+                        val uid = FirebaseAuth.getInstance().currentUser!!.uid
+                        val sub = SubmissionDetalis(uid + "%2F" + System.currentTimeMillis().toString(), taskId + uid)
 
-            userDatabaseReference = database.getReference("Users").child(uid)
-
-            userDatabaseReference.addListenerForSingleValueEvent(object : ValueEventListener {
-                override fun onCancelled(p0: DatabaseError) {
-                }
-
-                override fun onDataChange(p0: DataSnapshot) {
-                    if (p0.exists()) {
-                        for (i in p0.children) {
-                            if (i.key == "score") {
-
-                                val x = i.getValue().toString()
-                                currentPoints = x.toInt()
-                                updateScore(currentPoints, taskPoints, uid)
-                            }
-
-                            if (i.key == "uploads") {
-                                val x = i.getValue().toString()
-                                currentUploads = x.toInt()
-                                updateUploads(currentUploads, uid)
-                            }
+                        subsDatabaseReference.child(key!!).setValue(sub).addOnCompleteListener {
+                           // Toast.makeText(context, "Image uploaded successfully!", Toast.LENGTH_LONG).show()
                         }
+
+                        val taskPoints = mEventDetailsList[mPickedEventId-1].points
+
+                        userDatabaseReference = database.getReference("Users").child(uid)
+
+                        userDatabaseReference.addListenerForSingleValueEvent(object : ValueEventListener {
+                            override fun onCancelled(p0: DatabaseError) {
+                            }
+
+                            override fun onDataChange(p0: DataSnapshot) {
+                                if (p0.exists()) {
+                                    for (i in p0.children) {
+                                        if (i.key == "score") {
+
+                                            val x = i.getValue().toString()
+                                            currentPoints = x.toInt()
+                                            updateScore(currentPoints, taskPoints, uid)
+                                        }
+
+                                        if (i.key == "uploads") {
+                                            val x = i.getValue().toString()
+                                            currentUploads = x.toInt()
+                                            updateUploads(currentUploads, uid)
+                                        }
+                                    }
+                                }
+
+                            }
+                        })
+                    }
+                    .addOnFailureListener{
+                        exception -> exception.printStackTrace()
                     }
 
-                }
-            })
 
-            val urlTask = uploadTask?.continueWithTask(Continuation<UploadTask.TaskSnapshot, Task<Uri>> { task ->
-                if (!task.isSuccessful) {
-                    task.exception?.let {
-                        throw it
-                    }
-                }
-                return@Continuation ref.downloadUrl
-            })?.addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    val downloadUri = task.result
-
-
-//                    addUploadRecordToDb(downloadUri.toString())
-                } else {
-                    // Handle failures
-                }
-            }?.addOnFailureListener{
-
-            }
-        }else{
-            Toast.makeText(activity, "Please Upload an Image", Toast.LENGTH_SHORT).show()
-        }
     }
+
+
 
     private fun updateScore(score: Int, taskPoints: Int, uid: String) {
         val newScore = score + taskPoints
@@ -339,38 +270,8 @@ class EventsFragment : Fragment() {
         uploadsRef.setValue(newUploads)
     }
 
-    /* private fun getTitleFromUri(uri: Uri): String {
-         var result = ""
-         if (uri.scheme == "content") {
-             val cursor = activity?.contentResolver?.query(uri, null, null,
-                     null, null)
-             cursor.use { cursor ->
-                 if (cursor != null && cursor.moveToFirst()) {
-                     val id = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
-                     if (id != -1) {
-                         result = cursor.getString(id)
-                     }
-                 }
-             }
-         }
-         if (result == "") {
-             result = uri.path
-             val cut = result.lastIndexOf('/')
-             if (cut != -1)
-                 result = result.substring(cut + 1)
-         }
-         return result
-     }*/
 
-//    fun createEventDetailsObject(eventJSONObject: JSONObject): EventDetails {
-//
-//        return EventDetails(eventJSONObject.optInt(Constants.EVENT_ID_KEY),
-//                eventJSONObject.optString(Constants.EVENT_NAME_KEY),
-//                eventJSONObject.optString(Constants.EVENT_DESCRIPTION_KEY),
-//                eventJSONObject.optInt(Constants.EVENT_PRIZE_KEY),
-//                eventJSONObject.optInt(Constants.EVENT_POINTS_KEY),
-//                eventJSONObject.optInt(Constants.EVENT_FEE_KEY))
-//    }
+
 
     private fun isEventsCached(): Boolean {
         return when(mPrefs[Constants.EVENTS_CACHED_KEY, Constants.EVENTS_CACHED_DEFAULT]) {

@@ -155,6 +155,11 @@ class HomeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 fragmentClass = AboutFragment::class.java
             }
 
+            R.id.nav_message -> {
+                selectedPage = 5
+                fragmentClass = MessageFragment::class.java
+            }
+
             R.id.nav_info -> {
                 val infoIntent = Intent(this, ContactInfoActivity::class.java)
                 infoIntent.putExtra("fragmentIndex", 0)

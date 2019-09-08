@@ -1,18 +1,11 @@
 package org.effervescence.app19.ca.adapters
 
-import android.content.Intent
-import android.net.Uri
-import androidx.recyclerview.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.content.ContextCompat.startActivity
+import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.fragment_events_list_item.view.*
 import org.effervescence.app19.ca.models.EventDetails
-import androidx.core.content.ContextCompat.startActivity
-import android.R
-import android.widget.Toast
-import org.effervescence.app19.ca.activities.HomeActivity
 
 
 class MyEventsRecyclerViewAdapter(@get:JvmName("getEventsList_") private var mEventsList: ArrayList<EventDetails>)

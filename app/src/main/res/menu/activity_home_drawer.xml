@@ -22,6 +22,12 @@
             android:id="@+id/nav_about"
             android:icon="@drawable/ic_menu_about"
             android:title="About" />
+
+        <item
+            android:id="@+id/nav_message"
+            android:icon="@drawable/ic_action_msg"
+            android:title="Message" />
+
     </group>
 
     <item android:title="Communicate">

@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".fragments.MessageFragment"
+    android:background="@color/baseBackground1">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cardView"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:cardBackgroundColor="@color/baseBackground1"
+        app:cardCornerRadius="10dp"
+        app:contentPadding="5dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <TextView
+                android:id="@+id/textView2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="Message to all Campus Ambassadors"
+                android:textAppearance="@style/TextAppearance.AppCompat.Large"
+                android:textColor="@color/baseTextHeader"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/textView3"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="4dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="4dp"
+                android:layout_marginBottom="8dp"
+                android:text="Greetings Ambassadors,\n\nWe are pleased to announce that the campus ambassador app is ready and deployed. This app will be used by all the campus ambassadors, so that all of you can keep us informed regarding your progress as campus ambassadors.\n\nFollowing are the rules and guidelines pertaining to the app, which have to be taken care of:\n\n1. You are supposed to log in using your valid email or gmail account.\n2. In case you opt for logging in via email, you need to manually verify your email address.\n3. After logging in, you will be taken to the dashboard, where there will be tasks set by the organising committee.\n4. After the tasks are set, you have to start sharing the posts, the links to which you can find with the task itself.\n5. You will upload the screenshots of your sharing by clicking the upload button given in the page. This will increase your score.\n6. The Leaderboard is located in the left menu, showing where you stand against other campus ambassadors.\n7. The works of the all campus ambassadors will be manually monitored by our developer team, so kindly refrain from any malpractices. Defaulters will have to face immediate disqualification and their account will be banned.\n\nThus, we request you to kindly abide by the above rules and help making this edition of Effervescence a grand success. Lots of perks await for the campus ambassador who prevails. We wish you all the luck, and hope that you carry out your responsibilities with the best of your abilities, and help us in making this festival a grand success.\n\nThanks and regards,\nTeam Effervescence"
+                android:textColor="@color/baseTextPara"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/textView2" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.cardview.widget.CardView>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</ScrollView>

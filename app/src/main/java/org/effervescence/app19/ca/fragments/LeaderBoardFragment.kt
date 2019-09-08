@@ -80,21 +80,7 @@ class LeaderBoardFragment : Fragment() {
     }
 
     private fun getLeaderboardData() {
-//        AndroidNetworking.get(Constants.LEADERBOARD_URL)
-//                .addHeaders(Constants.AUTHORIZATION_KEY, Constants.TOKEN_STRING + UserDetails.Token)
-//                .setPriority(Priority.IMMEDIATE)
-//                .setTag("leaderboardRequest")
-//                .build()
-//                .getAsJSONArray(object : JSONArrayRequestListener {
-//                    override fun onResponse(response: JSONArray?) {
-//                        populateListFromJson(response!!)
-//                    }
-//
-//                    override fun onError(anError: ANError?) {
-//                        showErrorMessage()
-//                    }
-//
-//                })
+
         databaseReference.addValueEventListener(object : ValueEventListener {
             override fun onCancelled(p0: DatabaseError) {
                 showErrorMessage()
@@ -128,33 +114,6 @@ class LeaderBoardFragment : Fragment() {
     }
 
     private fun populateListFromJson(response: JSONArray) {
-//        doAsync {
-//            val len = response.length()
-//
-//            var entry: JSONObject
-//            var name: String
-//            var college: String
-//            var points: Int
-//            var isCurrentUser: Boolean
-//            for (i in 0 until len) {
-//                entry = response.getJSONObject(i)
-//                name = entry.getString("name")
-//                points = entry.getInt("points")
-//                college = entry.getString("college")
-//                isCurrentUser = entry.getBoolean("current_user")
-//
-//                list.add(LeaderbooardEntry(name, points, college, isCurrentUser))
-//            }
-//
-//            uiThread {
-//                adapter.swapList(list)
-//                mListViewModel.list = list
-//
-//                back_view.text = "See where you stand among campus ambassadors of other colleges"
-//                progressLeaderboard.visibility = View.GONE
-//                leaderRecylcerView.visibility = View.VISIBLE
-//            }
-//        }
 
     }
 
