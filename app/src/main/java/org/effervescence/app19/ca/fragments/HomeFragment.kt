@@ -81,7 +81,7 @@ class HomeFragment : Fragment() {
             val sendIntent: Intent = Intent().apply {
                 type = "text/plain"
                 action = Intent.ACTION_SEND
-                putExtra(Intent.EXTRA_TEXT, "Hey, check out the Effervescence '19 CA App")
+                putExtra(Intent.EXTRA_TEXT, "Hey, check out the Effervescence '19 CA App https://play.google.com/store/apps/details?id=org.effervescence.app19.ca")
             }
             startActivity(sendIntent)
         }

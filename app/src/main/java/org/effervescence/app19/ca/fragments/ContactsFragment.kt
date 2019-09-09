@@ -43,7 +43,6 @@ class ContactsFragment : Fragment() {
         mohit_fab.setOnClickListener { callNumber("+918385990861") }
         jai_fab.setOnClickListener { callNumber("+919560503984") }
         uddept_fab.setOnClickListener { callNumber("+918294218053") }
-        kajal_fab.setOnClickListener { callNumber("+918755381662") }
         keshab_fab.setOnClickListener{callNumber(("+919160000000"))}
         Tashruth_fab.setOnClickListener{callNumber(("+917893723232"))}
     }
