@@ -74,10 +74,6 @@ class HomeFragment : Fragment() {
 
         displayDetails(displayName!!)
 
-//        if (UserDetails.isFirstLaunch) {
-////            loadUserDetails()
-//        } else {
-//        }
 
 
         shareAppCardView.setOnClickListener {
